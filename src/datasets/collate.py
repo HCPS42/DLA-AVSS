@@ -57,7 +57,7 @@ def collate_fn(dataset_items: list[dict]):
         {
             key: torch.nn.utils.rnn.pad_sequence(
                 [item[key].squeeze(0) for item in dataset_items], batch_first=True
-            )
+            ).unsqueeze(1)
             for key in wav_keys
         }
     )
