@@ -1,11 +1,15 @@
 defaults:
   - dataloader: dataloader
-  - datasets: dla
   - model: mlp
   - writer: wandb
   - metrics: metrics-train
   - transforms: spectrogram
   - _self_
+  - datasets: dla-onebatchtest
+writer:
+  run_name: "one-batch-test"
+dataloader:
+  batch_size: 2
 optimizer:
   _target_: torch.optim.Adam
   lr: 3e-4
@@ -14,13 +18,13 @@ loss_function:
   _target_: src.loss.MSELoss
 trainer:
   log_step: 50
-  n_epochs: 100
-  epoch_len: null
+  n_epochs: 1
+  epoch_len: 500
   device_tensors: ["mix_spec", "speaker1_spec", "speaker2_spec"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"
   override: False # if True, will override the previous run with the same name
-  monitor: "max val_loss" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
+  monitor: "min val_loss" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
   save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
   early_stop: ${trainer.n_epochs} # epochs for early stopping
   save_dir: "saved"

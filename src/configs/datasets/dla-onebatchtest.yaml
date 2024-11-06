@@ -7,3 +7,4 @@ val:
   _target_: src.datasets.DLADataset
   part: "val"
   instance_transforms: ${transforms.instance_transforms.inference}
+  limit: ${dataloader.batch_size}
