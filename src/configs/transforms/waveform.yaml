@@ -1,0 +1,6 @@
+# For waveform-based models
+
+defaults:
+  - batch_transforms: waveform
+  - instance_transforms: waveform
+  - _self_

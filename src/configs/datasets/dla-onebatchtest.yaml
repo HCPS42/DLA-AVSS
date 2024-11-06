@@ -1,0 +1,9 @@
+train:
+  _target_: src.datasets.DLADataset
+  part: "train"
+  instance_transforms: ${transforms.instance_transforms.train}
+  limit: ${dataloader.batch_size}
+val:
+  _target_: src.datasets.DLADataset
+  part: "val"
+  instance_transforms: ${transforms.instance_transforms.inference}
