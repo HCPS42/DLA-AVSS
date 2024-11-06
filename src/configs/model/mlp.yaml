@@ -1,0 +1,5 @@
+# spec2spec MLP
+_target_: src.model.MLPModel
+n_feats: 128
+fc_hidden: 512
+n_class: 128

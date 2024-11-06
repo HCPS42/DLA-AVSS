@@ -1,8 +1,11 @@
+import torch
 from torch import nn
 from torch.nn import Sequential
 
+from src.model.base_model import BaseModel
 
-class BaselineModel(nn.Module):
+
+class MLPModel(BaseModel):
     """
     Simple MLP
     """
@@ -25,28 +28,13 @@ class BaselineModel(nn.Module):
             nn.Linear(in_features=fc_hidden, out_features=n_class),
         )
 
-    def forward(self, data_object, **batch):
+    def forward(self, mix_spec: torch.Tensor, **batch):
         """
         Model forward method.
 
         Args:
-            data_object (Tensor): input vector.
+            mix_spec (Tensor): input vector.
         Returns:
             output (dict): output dict containing logits.
         """
-        return {"logits": self.net(data_object)}
-
-    def __str__(self):
-        """
-        Model prints with the number of parameters.
-        """
-        all_parameters = sum([p.numel() for p in self.parameters()])
-        trainable_parameters = sum(
-            [p.numel() for p in self.parameters() if p.requires_grad]
-        )
-
-        result_info = super().__str__()
-        result_info = result_info + f"\nAll parameters: {all_parameters}"
-        result_info = result_info + f"\nTrainable parameters: {trainable_parameters}"
-
-        return result_info
+        return {"output_spec": self.net(mix_spec)}

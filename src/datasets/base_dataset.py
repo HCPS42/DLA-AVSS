@@ -1,8 +1,10 @@
 import logging
 import random
-from typing import List
+from typing import Any, List
 
+import numpy as np
 import torch
+import torchaudio
 from torch.utils.data import Dataset
 
 logger = logging.getLogger(__name__)
@@ -16,6 +18,14 @@ class BaseDataset(Dataset):
     for the same task in the identical manner. Therefore, to work with
     several datasets, the user only have to define index in a nested class.
     """
+
+    _attrs = ["mix_path", "speaker1_path", "speaker2_path", "landmarks_path"]
+    _attrs_mapping = {
+        "mix_path": "mix_wav",
+        "speaker1_path": "speaker1_wav",
+        "speaker2_path": "speaker2_wav",
+        "landmarks_path": "landmarks_npz",
+    }
 
     def __init__(
         self, index, limit=None, shuffle_index=False, instance_transforms=None
@@ -56,12 +66,11 @@ class BaseDataset(Dataset):
                 (a single dataset element).
         """
         data_dict = self._index[ind]
-        data_path = data_dict["path"]
-        data_object = self.load_object(data_path)
-        data_label = data_dict["label"]
+        for path_key in filter(lambda key: key in data_dict, self._attrs):
+            object_key = self._attrs_mapping[path_key]
+            data_dict[object_key] = self.load_object(data_dict[path_key])
 
-        instance_data = {"data_object": data_object, "labels": data_label}
-        instance_data = self.preprocess_data(instance_data)
+        instance_data = self.preprocess_data(data_dict)
 
         return instance_data
 
@@ -71,17 +80,23 @@ class BaseDataset(Dataset):
         """
         return len(self._index)
 
-    def load_object(self, path):
+    def load_object(self, path: str) -> Any:
         """
         Load object from disk.
 
         Args:
             path (str): path to the object.
         Returns:
-            data_object (Tensor):
+            data_object (Any): object loaded from disk.
         """
-        data_object = torch.load(path)
-        return data_object
+        if path.endswith(".wav"):
+            wav, sr = torchaudio.load(path)
+            assert sr == 16000
+            return wav
+        elif path.endswith(".npz"):
+            return np.load(path)
+        else:
+            raise NotImplementedError
 
     def preprocess_data(self, instance_data):
         """
@@ -98,7 +113,20 @@ class BaseDataset(Dataset):
                 instance transform).
         """
         if self.instance_transforms is not None:
-            for transform_name in self.instance_transforms.keys():
+            if "get_spectrogram" in self.instance_transforms:
+                get_spectrogram = self.instance_transforms["get_spectrogram"]
+
+                # apply get_spectrogram transform to all waveforms
+                for key in filter(
+                    lambda key: key.endswith("_wav"), list(instance_data.keys())
+                ):
+                    spec_key = key.removesuffix("_wav") + "_spec"
+                    instance_data[spec_key] = get_spectrogram(instance_data[key])
+
+            for transform_name in filter(
+                lambda name: name != "get_spectrogram",
+                list(self.instance_transforms.keys()),
+            ):
                 instance_data[transform_name] = self.instance_transforms[
                     transform_name
                 ](instance_data[transform_name])
@@ -138,14 +166,10 @@ class BaseDataset(Dataset):
                 the dataset. The dict has required metadata information,
                 such as label and object path.
         """
+        attrs = ["mix_path", "landmarks_path"]
         for entry in index:
-            assert "path" in entry, (
-                "Each dataset item should include field 'path'" " - path to audio file."
-            )
-            assert "label" in entry, (
-                "Each dataset item should include field 'label'"
-                " - object ground-truth label."
-            )
+            for attr in attrs:
+                assert attr in entry, f"Each dataset item should include field '{attr}'"
 
     @staticmethod
     def _sort_index(index):
