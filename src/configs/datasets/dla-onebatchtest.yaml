@@ -1,9 +1,12 @@
 train:
   _target_: src.datasets.DLADataset
+  dir: "data/dla_dataset"
   part: "train"
   instance_transforms: ${transforms.instance_transforms.train}
   limit: ${dataloader.batch_size}
 val:
   _target_: src.datasets.DLADataset
+  dir: "data/dla_dataset"
   part: "val"
   instance_transforms: ${transforms.instance_transforms.inference}
+  limit: ${dataloader.batch_size}
