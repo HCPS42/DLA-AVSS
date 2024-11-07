@@ -30,16 +30,16 @@ class Loss(nn.Module):
             self.criterion = nn.L1Loss()
 
         if output == "spec":
-            self.output_key, self.speaker1_key, self.speaker2_key = (
+            self.output_key, self.speaker_1_key, self.speaker_2_key = (
                 "output_spec",
-                "speaker1_spec",
-                "speaker2_spec",
+                "speaker_1_spec",
+                "speaker_2_spec",
             )
         elif output == "wav":
-            self.output_key, self.speaker1_key, self.speaker2_key = (
+            self.output_key, self.speaker_1_key, self.speaker_2_key = (
                 "output_wav",
-                "speaker1_wav",
-                "speaker2_wav",
+                "speaker_1_wav",
+                "speaker_2_wav",
             )
 
     def forward(self, **batch):
@@ -57,11 +57,11 @@ class Loss(nn.Module):
             dict: a dict containing the loss.
         """
         loss1 = self.criterion(
-            batch[self.output_key][:, 0], batch[self.speaker1_key]
-        ) + self.criterion(batch[self.output_key][:, 1], batch[self.speaker2_key])
+            batch[self.output_key][:, 0], batch[self.speaker_1_key]
+        ) + self.criterion(batch[self.output_key][:, 1], batch[self.speaker_2_key])
 
         loss2 = self.criterion(
-            batch[self.output_key][:, 0], batch[self.speaker2_key]
-        ) + self.criterion(batch[self.output_key][:, 1], batch[self.speaker1_key])
+            batch[self.output_key][:, 0], batch[self.speaker_2_key]
+        ) + self.criterion(batch[self.output_key][:, 1], batch[self.speaker_1_key])
 
         return {"loss": min(loss1, loss2)}

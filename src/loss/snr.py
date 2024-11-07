@@ -13,8 +13,8 @@ class SNRLoss(nn.Module):
     def forward(
         self,
         output_wav: torch.Tensor,
-        speaker1_wav: torch.Tensor,
-        speaker2_wav: torch.Tensor,
+        speaker_1_wav: torch.Tensor,
+        speaker_2_wav: torch.Tensor,
         **batch
     ):
         """
@@ -26,19 +26,19 @@ class SNRLoss(nn.Module):
 
         Args:
             output_wav (torch.Tensor): The output waveform of shape (B x 2 x L).
-            speaker1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x 1 x L).
-            speaker2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x 1 x L).
+            speaker_1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x 1 x L).
+            speaker_2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x 1 x L).
 
         Returns:
             dict: A dictionary containing the computed loss.
         """
         loss1 = self.calculate(
-            output_wav[:, 0], speaker1_wav.squeeze(1)
-        ) + self.calculate(output_wav[:, 1], speaker2_wav.squeeze(1))
+            output_wav[:, 0], speaker_1_wav.squeeze(1)
+        ) + self.calculate(output_wav[:, 1], speaker_2_wav.squeeze(1))
 
         loss2 = self.calculate(
-            output_wav[:, 0], speaker2_wav.squeeze(1)
-        ) + self.calculate(output_wav[:, 1], speaker1_wav.squeeze(1))
+            output_wav[:, 0], speaker_2_wav.squeeze(1)
+        ) + self.calculate(output_wav[:, 1], speaker_1_wav.squeeze(1))
 
         return {"loss": torch.mean(torch.minimum(loss1, loss2))}
 

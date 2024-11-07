@@ -78,8 +78,8 @@ class Trainer(BaseTrainer):
         self.writer.add_audio("mix", batch["mix_wav"][0])
         self.writer.add_audio("output1", normalize(batch["output_wav"][0, 0]))
         self.writer.add_audio("output2", normalize(batch["output_wav"][0, 1]))
-        self.writer.add_audio("speaker1", batch["speaker1_wav"][0])
-        self.writer.add_audio("speaker2", batch["speaker2_wav"][0])
+        self.writer.add_audio("speaker_1", batch["speaker_1_wav"][0])
+        self.writer.add_audio("speaker_2", batch["speaker_2_wav"][0])
 
         # logging scheme might be different for different partitions
         if mode == "train":  # the method is called only every self.log_step steps

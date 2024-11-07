@@ -19,8 +19,8 @@ class SNRMetric(BaseMetric):
     def __call__(
         self,
         output_wav: torch.Tensor,
-        speaker1_wav: torch.Tensor,
-        speaker2_wav: torch.Tensor,
+        speaker_1_wav: torch.Tensor,
+        speaker_2_wav: torch.Tensor,
         **batch
     ):
         """
@@ -28,8 +28,8 @@ class SNRMetric(BaseMetric):
 
         Args:
             output_wav (torch.Tensor): The output waveform of shape (B x 2 x L).
-            speaker1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x 1 x L)
-            speaker2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x 1 x L)
+            speaker_1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x 1 x L)
+            speaker_2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x 1 x L)
 
         Returns:
             float: The best SNR value between two permutations of speakers.
@@ -37,15 +37,15 @@ class SNRMetric(BaseMetric):
         value1 = self.calculate(
             output_wav[:, 0],
             output_wav[:, 1],
-            speaker1_wav.squeeze(1),
-            speaker2_wav.squeeze(1),
+            speaker_1_wav.squeeze(1),
+            speaker_2_wav.squeeze(1),
         )
 
         value2 = self.calculate(
             output_wav[:, 0],
             output_wav[:, 1],
-            speaker2_wav.squeeze(1),
-            speaker1_wav.squeeze(1),
+            speaker_2_wav.squeeze(1),
+            speaker_1_wav.squeeze(1),
         )
 
         return max(value1, value2)
@@ -54,8 +54,8 @@ class SNRMetric(BaseMetric):
         self,
         output1_wav: torch.Tensor,
         output2_wav: torch.Tensor,
-        speaker1_wav: torch.Tensor,
-        speaker2_wav: torch.Tensor,
+        speaker_1_wav: torch.Tensor,
+        speaker_2_wav: torch.Tensor,
     ):
         """
         Calculate SNR for one permutation of speakers.
@@ -63,15 +63,15 @@ class SNRMetric(BaseMetric):
         Args:
             output1_wav (torch.Tensor): The output waveform for speaker 1 of shape (B x L)
             output2_wav (torch.Tensor): The output waveform for speaker 2 of shape (B x L)
-            speaker1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x L)
-            speaker2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x L)
+            speaker_1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x L)
+            speaker_2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x L)
 
         Returns:
             float: The average SNR value between the two speakers.
         """
         return (
-            self.metric(output1_wav, speaker1_wav)
-            + self.metric(output2_wav, speaker2_wav)
+            self.metric(output1_wav, speaker_1_wav)
+            + self.metric(output2_wav, speaker_2_wav)
         ) / 2
 
 
@@ -80,8 +80,8 @@ class SNRiMetric(SNRMetric):
         self,
         mix_wav: torch.Tensor,
         output_wav: torch.Tensor,
-        speaker1_wav: torch.Tensor,
-        speaker2_wav: torch.Tensor,
+        speaker_1_wav: torch.Tensor,
+        speaker_2_wav: torch.Tensor,
         **batch
     ):
         """
@@ -91,12 +91,14 @@ class SNRiMetric(SNRMetric):
         Args:
             mix_wav (torch.Tensor): The mixed waveform of shape (B x 1 x L)
             output_wav (torch.Tensor): The output waveform of shape (B x 2 x L)
-            speaker1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x 1 x L)
-            speaker2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x 1 x L)
+            speaker_1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x 1 x L)
+            speaker_2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x 1 x L)
 
         Returns:
             float: The SNR improvement between the output and the mixed waveform.
         """
-        baseline = super().__call__(mix_wav.repeat(1, 2, 1), speaker1_wav, speaker2_wav)
-        improved = super().__call__(output_wav, speaker1_wav, speaker2_wav)
+        baseline = super().__call__(
+            mix_wav.repeat(1, 2, 1), speaker_1_wav, speaker_2_wav
+        )
+        improved = super().__call__(output_wav, speaker_1_wav, speaker_2_wav)
         return improved - baseline
