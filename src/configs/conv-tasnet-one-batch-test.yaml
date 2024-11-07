@@ -1,13 +1,11 @@
 defaults:
   - dataloader: dataloader
+  - datasets: dla-onebatchtest
   - model: conv_tasnet
   - writer: wandb
   - metrics: metrics-train
   - transforms: waveform
   - _self_
-  - datasets: dla-onebatchtest
-writer:
-  run_name: "conv-tasnet-one-batch-test"
 dataloader:
   batch_size: 2
 optimizer:
@@ -18,9 +16,9 @@ loss_function:
   _target_: src.loss.SNRLoss
 trainer:
   log_step: 50
-  n_epochs: 1
-  epoch_len: 2000
-  device_tensors: ["mix_wav", "speaker1_wav", "speaker2_wav"] # which tensors should be on device (ex. GPU)
+  n_epochs: 10
+  epoch_len: null
+  device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"
   override: False # if True, will override the previous run with the same name
@@ -29,3 +27,5 @@ trainer:
   early_stop: ${trainer.n_epochs} # epochs for early stopping
   save_dir: "saved"
   seed: 1
+writer:
+  run_name: "conv-tasnet-one-batch-test"

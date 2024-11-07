@@ -19,12 +19,19 @@ class BaseDataset(Dataset):
     several datasets, the user only have to define index in a nested class.
     """
 
-    _attrs = ["mix_path", "speaker1_path", "speaker2_path", "landmarks_path"]
+    _attrs = [
+        "mix_path",
+        "speaker_1_path",
+        "speaker_2_path",
+        "mouth_1_path",
+        "mouth_2_path",
+    ]
     _attrs_mapping = {
         "mix_path": "mix_wav",
-        "speaker1_path": "speaker1_wav",
-        "speaker2_path": "speaker2_wav",
-        "landmarks_path": "landmarks_npz",
+        "speaker_1_path": "speaker_1_wav",
+        "speaker_2_path": "speaker_2_wav",
+        "mouth_1_path": "mouth_1_npz",
+        "mouth_2_path": "mouth_2_npz",
     }
 
     def __init__(
@@ -89,14 +96,15 @@ class BaseDataset(Dataset):
         Returns:
             data_object (Any): object loaded from disk.
         """
-        if path.endswith(".wav"):
-            wav, sr = torchaudio.load(path)
+        if path.endswith((".wav", ".flac", ".mp3")):
+            audio, sr = torchaudio.load(path)
             assert sr == 16000
-            return wav
+            return audio
         elif path.endswith(".npz"):
-            return np.load(path)
+            with np.load(path) as data:
+                return data
         else:
-            raise NotImplementedError
+            raise ValueError(f"Unsupported file format: {path}")
 
     def preprocess_data(self, instance_data):
         """
@@ -166,10 +174,11 @@ class BaseDataset(Dataset):
                 the dataset. The dict has required metadata information,
                 such as label and object path.
         """
-        attrs = ["mix_path", "landmarks_path"]
+        attrs = ["mix_path", "mouth_1_path", "mouth_2_path"]
         for entry in index:
             for attr in attrs:
-                assert attr in entry, f"Each dataset item should include field '{attr}'"
+                if attr not in entry:
+                    raise KeyError(f"Each dataset item should include field '{attr}'")
 
     @staticmethod
     def _sort_index(index):
@@ -188,7 +197,7 @@ class BaseDataset(Dataset):
                 of the dataset. The dict has required metadata information,
                 such as label and object path.
         """
-        return sorted(index, key=lambda x: x["KEY_FOR_SORTING"])
+        return sorted(index, key=lambda x: x["mix_path"])
 
     @staticmethod
     def _shuffle_and_limit_index(index, limit, shuffle_index):
