@@ -1,4 +1,5 @@
 test:
   _target_: src.datasets.DLADataset
+  dir: "data/dla_dataset"
   part: "test"
   instance_transforms: ${transforms.instance_transforms.inference}

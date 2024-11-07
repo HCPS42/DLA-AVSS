@@ -9,12 +9,12 @@ class MSELoss(nn.MSELoss):
 
     def forward(
         self,
-        speaker1_spec: torch.Tensor,
-        speaker2_spec: torch.Tensor,
+        speaker_1_spec: torch.Tensor,
+        speaker_2_spec: torch.Tensor,
         output_spec: torch.Tensor,
         **batch
     ):
-        loss1 = super().forward(output_spec, speaker1_spec)
-        loss2 = super().forward(output_spec, speaker2_spec)
+        loss1 = super().forward(output_spec, speaker_1_spec)
+        loss2 = super().forward(output_spec, speaker_2_spec)
 
         return {"loss": min(loss1, loss2)}
