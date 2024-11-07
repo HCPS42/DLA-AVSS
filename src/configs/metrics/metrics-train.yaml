@@ -10,3 +10,8 @@ inference:
       _target_: torchmetrics.audio.ScaleInvariantSignalNoiseRatio
     name: si-snr
     device: ${trainer.device}
+  - _target_: src.metrics.SNRiMetric
+    metric:
+      _target_: torchmetrics.audio.ScaleInvariantSignalNoiseRatio
+    name: si-snr-i
+    device: ${trainer.device}

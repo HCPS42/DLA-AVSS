@@ -1,1 +1,1 @@
-from src.metrics.snr import SNRMetric
+from src.metrics.snr import SNRiMetric, SNRMetric
