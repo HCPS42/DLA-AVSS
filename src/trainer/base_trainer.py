@@ -527,7 +527,8 @@ class BaseTrainer:
             )
         else:
             self.optimizer.load_state_dict(checkpoint["optimizer"])
-            self.lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
+            if self.lr_scheduler is not None:
+                self.lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
 
         self.logger.info(
             f"Checkpoint loaded. Resume training from epoch {self.start_epoch}"
