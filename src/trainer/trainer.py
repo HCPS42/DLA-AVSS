@@ -75,8 +75,9 @@ class Trainer(BaseTrainer):
         def normalize(wav):
             return wav / torch.max(torch.abs(wav))
 
-        self.writer.add_audio("output", normalize(batch["output_wav"][0]))
         self.writer.add_audio("mix", batch["mix_wav"][0])
+        self.writer.add_audio("output1", normalize(batch["output_wav"][0, 0]))
+        self.writer.add_audio("output2", normalize(batch["output_wav"][0, 1]))
         self.writer.add_audio("speaker1", batch["speaker1_wav"][0])
         self.writer.add_audio("speaker2", batch["speaker2_wav"][0])
 

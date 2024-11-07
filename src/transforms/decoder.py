@@ -12,10 +12,10 @@ class SpectrogramDecoder(nn.Module):
         self.eps = eps
 
     def forward(self, mix_wav: torch.Tensor, output_spec: torch.Tensor, **batch):
-        mel_spec = torch.exp(output_spec.transpose(1, 2).detach().cpu()) - self.eps
+        mel_spec = torch.exp(output_spec.transpose(-1, -2).detach().cpu()) - self.eps
         spec = self.inv_mel(mel_spec)
 
-        mix_spec = self.raw_spec(mix_wav)
+        mix_spec = self.raw_spec(mix_wav).repeat(1, 2, 1, 1)
         # normalize complex numbers to have magnitude 1
         mix_spec /= torch.abs(mix_spec)
         # get magnitude from estimated spectrogram

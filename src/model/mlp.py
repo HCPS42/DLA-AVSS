@@ -19,14 +19,17 @@ class MLPModel(BaseModel):
         """
         super().__init__()
 
-        self.net = Sequential(
-            # people say it can approximate any function...
-            nn.Linear(in_features=n_feats, out_features=fc_hidden),
-            nn.ReLU(),
-            nn.Linear(in_features=fc_hidden, out_features=fc_hidden),
-            nn.ReLU(),
-            nn.Linear(in_features=fc_hidden, out_features=n_class),
-        )
+        def build_model():
+            return Sequential(
+                nn.Linear(in_features=n_feats, out_features=fc_hidden),
+                nn.ReLU(),
+                nn.Linear(in_features=fc_hidden, out_features=fc_hidden),
+                nn.ReLU(),
+                nn.Linear(in_features=fc_hidden, out_features=n_class),
+            )
+
+        self.model1 = build_model()
+        self.model2 = build_model()
 
     def forward(self, mix_spec: torch.Tensor, **batch):
         """
@@ -37,4 +40,8 @@ class MLPModel(BaseModel):
         Returns:
             output (dict): output dict containing logits.
         """
-        return {"output_spec": self.net(mix_spec)}
+        return {
+            "output_spec": torch.stack(
+                [self.model1(mix_spec), self.model2(mix_spec)], dim=1
+            )
+        }

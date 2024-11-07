@@ -59,6 +59,7 @@ class Loss(nn.Module):
         loss1 = self.criterion(
             batch[self.output_key][:, 0], batch[self.speaker1_key]
         ) + self.criterion(batch[self.output_key][:, 1], batch[self.speaker2_key])
+
         loss2 = self.criterion(
             batch[self.output_key][:, 0], batch[self.speaker2_key]
         ) + self.criterion(batch[self.output_key][:, 1], batch[self.speaker1_key])
