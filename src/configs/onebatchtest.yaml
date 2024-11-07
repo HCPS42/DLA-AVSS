@@ -14,11 +14,12 @@ loss_function:
   _target_: src.loss.MSELoss
 trainer:
   log_step: 50
-  n_epochs: 1
-  epoch_len: 100
+  n_epochs: 10
+  epoch_len: null
   device_tensors: ["mix_spec", "speaker_1_spec", "speaker_2_spec"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"
+  device_ids: null # list of GPU device IDs to use for DataParallel (for example, [0, 1]); null to use all available GPUs
   override: False # if True, will override the previous run with the same name
   monitor: "min val_loss" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
   save_period: 5 # checkpoint each save_period epochs in addition to the best epoch

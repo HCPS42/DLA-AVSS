@@ -42,10 +42,13 @@ def main(config):
     model = instantiate(config.model).to(device)
 
     if torch.cuda.device_count() > 1:
-        print(
-            "We will use", torch.cuda.device_count(), "GPUs for data-parallel training."
+        device_ids = (
+            config.trainer.device_ids
+            if config.trainer.device_ids
+            else list(range(torch.cuda.device_count()))
         )
-        model = nn.DataParallel(model)
+        print("Using the following GPUs for data-parallel training:", device_ids)
+        model = nn.DataParallel(model, device_ids=device_ids)
 
     model.to(device)
     logger.info(model)

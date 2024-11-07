@@ -101,7 +101,8 @@ class BaseDataset(Dataset):
             assert sr == 16000
             return audio
         elif path.endswith(".npz"):
-            return np.load(path)
+            with np.load(path) as data:
+                return data
         else:
             raise ValueError(f"Unsupported file format: {path}")
 
