@@ -13,9 +13,7 @@ optimizer:
   lr: 3e-4
 lr_scheduler: null
 loss_function:
-  _target_: src.loss.Loss
-  loss: "mae"
-  output: "wav"
+  _target_: src.loss.SNRLoss
 trainer:
   log_step: 50
   n_epochs: 20

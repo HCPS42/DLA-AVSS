@@ -1,4 +1,6 @@
+# we optimize si-snr directly, so we don't need to calculate it on the training
 train: []
+
 inference:
   - _target_: src.metrics.SNRMetric
     metric:
