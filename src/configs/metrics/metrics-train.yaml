@@ -1,3 +1,19 @@
-device: "auto"
-train: [] # metrics that are calculated during training
-inference: [] # metrics that are calculated during inference (eval)
+# we optimize si-snr directly, so we don't need to calculate it on the training
+train: []
+
+inference:
+  - _target_: src.metrics.SNRMetric
+    metric:
+      _target_: torchmetrics.audio.SignalNoiseRatio
+    name: snr
+    device: ${trainer.device}
+  - _target_: src.metrics.SNRMetric
+    metric:
+      _target_: torchmetrics.audio.ScaleInvariantSignalNoiseRatio
+    name: si-snr
+    device: ${trainer.device}
+  - _target_: src.metrics.SNRiMetric
+    metric:
+      _target_: torchmetrics.audio.ScaleInvariantSignalNoiseRatio
+    name: si-snr-i
+    device: ${trainer.device}

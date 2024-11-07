@@ -1,3 +1,5 @@
+import torch
+
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
 
@@ -67,12 +69,20 @@ class Trainer(BaseTrainer):
             mode (str): train or inference. Defines which logging
                 rules to apply.
         """
-        # method to log data from you batch
-        # such as audio, text or images, for example
+        if self.decoder is not None:
+            batch.update(self.decoder(**batch))
+
+        def normalize(wav):
+            return wav / torch.max(torch.abs(wav))
+
+        self.writer.add_audio("mix", batch["mix_wav"][0])
+        self.writer.add_audio("output1", normalize(batch["output_wav"][0, 0]))
+        self.writer.add_audio("output2", normalize(batch["output_wav"][0, 1]))
+        self.writer.add_audio("speaker_1", batch["speaker_1_wav"][0])
+        self.writer.add_audio("speaker_2", batch["speaker_2_wav"][0])
 
         # logging scheme might be different for different partitions
         if mode == "train":  # the method is called only every self.log_step steps
-            # Log Stuff
             pass
         else:
             # Log Stuff

@@ -157,7 +157,7 @@ class WandBWriter:
             {self._object_name(image_name): self.wandb.Image(image)}, step=self.step
         )
 
-    def add_audio(self, audio_name, audio, sample_rate=None):
+    def add_audio(self, audio_name, audio, sample_rate=16000):
         """
         Log an audio to the experiment tracker.
 

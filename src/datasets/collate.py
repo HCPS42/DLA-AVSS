@@ -24,7 +24,7 @@ def collate_fn(dataset_items: list[dict]):
         - Spectrogram. Has suffix `_spec`
         - Mouth landmarks. Has suffix `_npz`
 
-        Possible prefixes are `mix`, `speaker1`, `speaker2` for waveforms and spectrograms.
+        Possible prefixes are `mix`, `speaker_1`, `speaker_2` for waveforms and spectrograms.
 
         This function filters all keys of certain type from the dataset items
         since we want to collate objects depending on their type.
@@ -57,7 +57,7 @@ def collate_fn(dataset_items: list[dict]):
         {
             key: torch.nn.utils.rnn.pad_sequence(
                 [item[key].squeeze(0) for item in dataset_items], batch_first=True
-            )
+            ).unsqueeze(1)
             for key in wav_keys
         }
     )

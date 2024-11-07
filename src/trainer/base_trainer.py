@@ -27,6 +27,7 @@ class BaseTrainer:
         dataloaders,
         logger,
         writer,
+        decoder=None,
         epoch_len=None,
         skip_oom=True,
         batch_transforms=None,
@@ -71,6 +72,7 @@ class BaseTrainer:
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.batch_transforms = batch_transforms
+        self.decoder = decoder
 
         # define dataloaders
         self.train_dataloader = dataloaders["train"]

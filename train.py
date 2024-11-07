@@ -66,6 +66,11 @@ def main(config):
     # epoch_len = None or len(dataloader) for epoch-based training
     epoch_len = config.trainer.get("epoch_len")
 
+    if config.transforms.get("decoder") is not None:
+        decoder = instantiate(config.transforms.decoder)
+    else:
+        decoder = None
+
     trainer = Trainer(
         model=model,
         criterion=loss_function,
@@ -78,6 +83,7 @@ def main(config):
         epoch_len=epoch_len,
         logger=logger,
         writer=writer,
+        decoder=decoder,
         batch_transforms=batch_transforms,
         skip_oom=config.trainer.get("skip_oom", True),
     )
