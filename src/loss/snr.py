@@ -40,7 +40,7 @@ class SNRLoss(nn.Module):
             output_wav[:, 0], speaker2_wav.squeeze(1)
         ) + self.calculate(output_wav[:, 1], speaker1_wav.squeeze(1))
 
-        return {"loss": -torch.mean(torch.minimum(loss1, loss2))}
+        return {"loss": torch.mean(torch.minimum(loss1, loss2))}
 
     def calculate(self, output_wav: torch.Tensor, target_wav: torch.Tensor):
         """
@@ -51,7 +51,7 @@ class SNRLoss(nn.Module):
             target_wav (torch.Tensor): The target (reference) waveform of shape (B x L).
 
         Returns:
-            torch.Tensor: The SNR values for each example in the batch.
+            torch.Tensor: minus SNR values for each example in the batch (i.e. lower is better).
         """
 
         def dot(x, y, axis):
@@ -66,4 +66,4 @@ class SNRLoss(nn.Module):
         noise = output_wav - signal
 
         snr = 10 * torch.log10(norm(signal, axis=1) / norm(noise, axis=1))
-        return snr
+        return -snr
