@@ -1,7 +1,7 @@
 defaults:
   - dataloader: dataloader
   - datasets: dla-onebatchtest
-  - model: conv_tasnet
+  - model: conv-tasnet
   - writer: wandb
   - metrics: metrics-train
   - transforms: waveform
@@ -28,4 +28,4 @@ trainer:
   save_dir: "saved"
   seed: 1
 writer:
-  run_name: "conv-tasnet-one-batch-test"
+  run_name: "av-conv-tasnet-one-batch-test"
