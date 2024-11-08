@@ -1,6 +1,6 @@
 defaults:
   - dataloader: conv-tasnet
-  - datasets: dla-train
+  - datasets: dla-online-train
   - model: conv-tasnet
   - writer: wandb
   - metrics: metrics-train
@@ -11,17 +11,17 @@ optimizer:
   lr: 1e-6
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
-  max_lr: 1e-3
+  max_lr: 2e-3
   pct_start: 0.05
-  steps_per_epoch: 155
+  steps_per_epoch: ${trainer.epoch_len}
   epochs: ${trainer.n_epochs}
   anneal_strategy: cos
 loss_function:
   _target_: src.loss.SNRLoss
 trainer:
-  log_step: 50
+  log_step: 100
   n_epochs: 100
-  epoch_len: null
+  epoch_len: 1000
   device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"
