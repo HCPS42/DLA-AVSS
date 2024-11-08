@@ -1,0 +1,21 @@
+train:
+  _target_: src.datasets.DLAOnlineDataset
+  dir: "data/dla_dataset"
+  part: "train"
+  instance_transforms: ${transforms.instance_transforms.train}
+  shuffle: true
+  ratio: 0.98
+
+val:
+  _target_: src.datasets.DLAOnlineDataset
+  dir: "data/dla_dataset"
+  part: "val"
+  instance_transforms: ${transforms.instance_transforms.inference}
+  shuffle: true
+  limit: 5000
+
+test:
+  _target_: src.datasets.DLADataset
+  dir: "data/dla_dataset"
+  part: "val"
+  instance_transforms: ${transforms.instance_transforms.inference}
