@@ -1,13 +1,11 @@
 defaults:
   - dataloader: dataloader
-  - datasets: dla-onebatchtest
-  - model: conv_tasnet
+  - datasets: dla
+  - model: av_conv_tasnet
   - writer: wandb
   - metrics: metrics-train
   - transforms: waveform
   - _self_
-dataloader:
-  batch_size: 2
 optimizer:
   _target_: torch.optim.Adam
   lr: 3e-4
@@ -16,8 +14,8 @@ loss_function:
   _target_: src.loss.SNRLoss
 trainer:
   log_step: 50
-  n_epochs: 1
-  epoch_len: 300
+  n_epochs: 100
+  epoch_len: null
   device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"
@@ -28,4 +26,4 @@ trainer:
   save_dir: "saved"
   seed: 1
 writer:
-  run_name: "conv-tasnet-one-batch-test"
+  run_name: "av-conv-tasnet-only-audio"

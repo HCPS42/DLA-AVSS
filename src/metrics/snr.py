@@ -52,8 +52,8 @@ class SNRMetric(BaseMetric):
 
     def calculate(
         self,
-        output1_wav: torch.Tensor,
-        output2_wav: torch.Tensor,
+        output_1_wav: torch.Tensor,
+        output_2_wav: torch.Tensor,
         speaker_1_wav: torch.Tensor,
         speaker_2_wav: torch.Tensor,
     ):
@@ -61,8 +61,8 @@ class SNRMetric(BaseMetric):
         Calculate SNR for one permutation of speakers.
 
         Args:
-            output1_wav (torch.Tensor): The output waveform for speaker 1 of shape (B x L)
-            output2_wav (torch.Tensor): The output waveform for speaker 2 of shape (B x L)
+            output_1_wav (torch.Tensor): The output waveform for speaker 1 of shape (B x L)
+            output_2_wav (torch.Tensor): The output waveform for speaker 2 of shape (B x L)
             speaker_1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x L)
             speaker_2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x L)
 
@@ -70,8 +70,8 @@ class SNRMetric(BaseMetric):
             float: The average SNR value between the two speakers.
         """
         return (
-            self.metric(output1_wav, speaker_1_wav)
-            + self.metric(output2_wav, speaker_2_wav)
+            self.metric(output_1_wav, speaker_1_wav)
+            + self.metric(output_2_wav, speaker_2_wav)
         ) / 2
 
 

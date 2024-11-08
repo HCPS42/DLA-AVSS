@@ -76,8 +76,8 @@ class Trainer(BaseTrainer):
             return wav / torch.max(torch.abs(wav))
 
         self.writer.add_audio("mix", batch["mix_wav"][0])
-        self.writer.add_audio("output1", normalize(batch["output_wav"][0, 0]))
-        self.writer.add_audio("output2", normalize(batch["output_wav"][0, 1]))
+        self.writer.add_audio("output_1", normalize(batch["output_wav"][0, 0]))
+        self.writer.add_audio("output_2", normalize(batch["output_wav"][0, 1]))
         self.writer.add_audio("speaker_1", batch["speaker_1_wav"][0])
         self.writer.add_audio("speaker_2", batch["speaker_2_wav"][0])
 

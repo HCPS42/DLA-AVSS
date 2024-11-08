@@ -2,7 +2,6 @@ import warnings
 
 import hydra
 import torch
-import torch.nn as nn
 from hydra.utils import instantiate
 from omegaconf import OmegaConf
 
@@ -40,17 +39,6 @@ def main(config):
 
     # build model architecture, then print to console
     model = instantiate(config.model).to(device)
-
-    if torch.cuda.device_count() > 1:
-        device_ids = (
-            config.trainer.device_ids
-            if config.trainer.device_ids
-            else list(range(torch.cuda.device_count()))
-        )
-        print("Using the following GPUs for data-parallel training:", device_ids)
-        model = nn.DataParallel(model, device_ids=device_ids)
-
-    model.to(device)
     logger.info(model)
 
     # get function handles of loss and metrics
