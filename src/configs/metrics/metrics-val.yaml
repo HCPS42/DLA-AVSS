@@ -1,0 +1,16 @@
+inference:
+  - _target_: src.metrics.SNRMetric
+    metric:
+      _target_: torchmetrics.audio.SignalNoiseRatio
+    name: snr
+    device: ${inferencer.device}
+  - _target_: src.metrics.SNRMetric
+    metric:
+      _target_: torchmetrics.audio.ScaleInvariantSignalNoiseRatio
+    name: si-snr
+    device: ${inferencer.device}
+  - _target_: src.metrics.SNRiMetric
+    metric:
+      _target_: torchmetrics.audio.ScaleInvariantSignalNoiseRatio
+    name: si-snr-i
+    device: ${inferencer.device}

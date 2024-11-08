@@ -19,7 +19,6 @@ trainer:
   device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"
-  device_ids: null # list of GPU device IDs to use for DataParallel (for example, [0, 1]); null to use all available GPUs
   override: False # if True, will override the previous run with the same name
   monitor: "max val_si-snr-i" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
   save_period: 5 # checkpoint each save_period epochs in addition to the best epoch

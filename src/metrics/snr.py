@@ -34,26 +34,37 @@ class SNRMetric(BaseMetric):
         Returns:
             float: The best SNR value between two permutations of speakers.
         """
-        value1 = self.calculate(
-            output_wav[:, 0],
-            output_wav[:, 1],
-            speaker_1_wav.squeeze(1),
-            speaker_2_wav.squeeze(1),
-        )
+        # we have to use for loop since we want to get unreduced values for batch
+        perm1, perm2 = [], []
+        for output, speaker_1, speaker_2 in zip(
+            output_wav, speaker_1_wav, speaker_2_wav
+        ):
+            value1 = self.calculate(
+                output[0],
+                output[1],
+                speaker_1.squeeze(0),
+                speaker_2.squeeze(0),
+            )
 
-        value2 = self.calculate(
-            output_wav[:, 0],
-            output_wav[:, 1],
-            speaker_2_wav.squeeze(1),
-            speaker_1_wav.squeeze(1),
-        )
+            value2 = self.calculate(
+                output[0],
+                output[1],
+                speaker_2.squeeze(0),
+                speaker_1.squeeze(0),
+            )
 
-        return max(value1, value2)
+            perm1.append(value1)
+            perm2.append(value2)
+
+        perm1, perm2 = torch.tensor(perm1), torch.tensor(perm2)
+        result = torch.maximum(perm1, perm2)
+
+        return result.mean()
 
     def calculate(
         self,
-        output1_wav: torch.Tensor,
-        output2_wav: torch.Tensor,
+        output_1_wav: torch.Tensor,
+        output_2_wav: torch.Tensor,
         speaker_1_wav: torch.Tensor,
         speaker_2_wav: torch.Tensor,
     ):
@@ -61,17 +72,17 @@ class SNRMetric(BaseMetric):
         Calculate SNR for one permutation of speakers.
 
         Args:
-            output1_wav (torch.Tensor): The output waveform for speaker 1 of shape (B x L)
-            output2_wav (torch.Tensor): The output waveform for speaker 2 of shape (B x L)
-            speaker_1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (B x L)
-            speaker_2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (B x L)
+            output_1_wav (torch.Tensor): The output waveform for speaker 1 of shape (L)
+            output_2_wav (torch.Tensor): The output waveform for speaker 2 of shape (L)
+            speaker_1_wav (torch.Tensor): The reference waveform for speaker 1 of shape (L)
+            speaker_2_wav (torch.Tensor): The reference waveform for speaker 2 of shape (L)
 
         Returns:
             float: The average SNR value between the two speakers.
         """
         return (
-            self.metric(output1_wav, speaker_1_wav)
-            + self.metric(output2_wav, speaker_2_wav)
+            self.metric(output_1_wav, speaker_1_wav)
+            + self.metric(output_2_wav, speaker_2_wav)
         ) / 2
 
 
