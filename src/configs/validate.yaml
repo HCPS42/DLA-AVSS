@@ -1,7 +1,7 @@
 defaults:
   - dataloader: dataloader
   - datasets: dla-val
-  - model: av_conv_tasnet
+  - model: av-conv-tasnet
   - metrics: metrics-val
   - transforms: waveform
   - _self_

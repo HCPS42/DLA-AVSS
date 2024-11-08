@@ -1,15 +1,21 @@
 defaults:
-  - dataloader: dataloader
-  - datasets: dla
-  - model: av_conv_tasnet
+  - dataloader: av-conv-tasnet
+  - datasets: dla-train
+  - model: av-conv-tasnet
   - writer: wandb
   - metrics: metrics-train
   - transforms: waveform
   - _self_
 optimizer:
   _target_: torch.optim.Adam
-  lr: 3e-4
-lr_scheduler: null
+  lr: 1e-6
+lr_scheduler:
+  _target_: torch.optim.lr_scheduler.OneCycleLR
+  max_lr: 1e-3
+  pct_start: 0.05
+  steps_per_epoch: 155
+  epochs: ${trainer.n_epochs}
+  anneal_strategy: cos
 loss_function:
   _target_: src.loss.SNRLoss
 trainer:
@@ -26,4 +32,4 @@ trainer:
   save_dir: "saved"
   seed: 1
 writer:
-  run_name: "av-conv-tasnet-only-audio"
+  run_name: "conv-tasnet-baseline"
