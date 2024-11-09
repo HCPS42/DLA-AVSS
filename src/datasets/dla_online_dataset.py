@@ -34,6 +34,7 @@ class DLAOnlineDataset(BaseDataset):
         else:
             index = self._create_index(part, ratio=ratio)
 
+        # TODO utilize torch.data.utils.RandomSampler
         print("preparing dataset ...")
         self._pairs = np.stack(
             np.unravel_index(np.arange(len(index) ** 2), (len(index), len(index)))

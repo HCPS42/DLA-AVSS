@@ -13,9 +13,3 @@ val:
   instance_transforms: ${transforms.instance_transforms.inference}
   shuffle: true
   limit: 5000
-
-test:
-  _target_: src.datasets.DLADataset
-  dir: "data/dla_dataset"
-  part: "val"
-  instance_transforms: ${transforms.instance_transforms.inference}
