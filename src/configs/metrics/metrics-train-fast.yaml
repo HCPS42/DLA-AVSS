@@ -1,0 +1,9 @@
+# we optimize si-snr directly, so we don't need to calculate it on the training
+train: []
+
+inference:
+  - _target_: src.metrics.SNRiMetric
+    metric:
+      _target_: torchmetrics.audio.ScaleInvariantSignalNoiseRatio
+    name: si-snr-i
+    device: ${trainer.device}

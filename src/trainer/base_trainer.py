@@ -168,6 +168,17 @@ class BaseTrainer:
             self._last_epoch = epoch
             result = self._train_epoch(epoch)
 
+            if (
+                self.lr_scheduler is not None
+                and self.config.trainer.scheduling == "epochwise"
+            ):
+                if isinstance(
+                    self.lr_scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau
+                ):
+                    self.lr_scheduler.step(result[self.mnt_metric])
+                else:
+                    self.lr_scheduler.step()
+
             # save logged information into logs dict
             logs = {"epoch": epoch}
             logs.update(result)

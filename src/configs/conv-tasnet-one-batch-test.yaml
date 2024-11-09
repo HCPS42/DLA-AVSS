@@ -1,13 +1,11 @@
 defaults:
-  - dataloader: dataloader
+  - dataloader: onebatchtest
   - datasets: dla-onebatchtest
   - model: conv-tasnet
   - writer: wandb
   - metrics: metrics-train
   - transforms: waveform
   - _self_
-dataloader:
-  batch_size: 2
 optimizer:
   _target_: torch.optim.Adam
   lr: 3e-4

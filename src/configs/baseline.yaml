@@ -3,22 +3,21 @@ defaults:
   - datasets: dla-online-train
   - model: conv-tasnet
   - writer: wandb
-  - metrics: metrics-train
+  - metrics: metrics-train-fast
   - transforms: waveform
   - _self_
 optimizer:
   _target_: torch.optim.Adam
-  lr: 1e-6
+  lr: 2e-3
 lr_scheduler:
-  _target_: torch.optim.lr_scheduler.OneCycleLR
-  max_lr: 2e-3
-  pct_start: 0.01
-  steps_per_epoch: ${trainer.epoch_len}
-  epochs: ${trainer.n_epochs}
-  anneal_strategy: cos
+  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  mode: max
+  factor: 0.5
+  patience: 3
 loss_function:
   _target_: src.loss.SNRLoss
 trainer:
+  scheduling: "epochwise" # "epochwise" or "stepwise"
   log_step: 100
   n_epochs: 100
   epoch_len: 1000

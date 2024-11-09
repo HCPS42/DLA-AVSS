@@ -1,5 +1,5 @@
 defaults:
-  - dataloader: dataloader
+  - dataloader: onebatchtest
   - datasets: dla-onebatchtest
   - model: mlp
   - writer: wandb
