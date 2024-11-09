@@ -4,4 +4,4 @@ filter_length: 16          # L
 bottleneck_channels: 128   # B
 conv_kernel_size: 3        # P
 num_conv_blocks: 8         # X
-num_repeats: 3             # R
+num_tcn_blocks: 3             # R
