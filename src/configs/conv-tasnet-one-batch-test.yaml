@@ -1,5 +1,5 @@
 defaults:
-  - dataloader: conv-tasnet.yaml
+  - dataloader: conv-tasnet
   - datasets: dla-onebatchtest
   - model: conv-tasnet
   - writer: wandb
