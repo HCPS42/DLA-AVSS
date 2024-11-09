@@ -1,5 +1,5 @@
 defaults:
-  - dataloader: dataloader
+  - dataloader: conv-tasnet
   - datasets: dla-onebatchtest
   - model: conv-tasnet
   - writer: wandb
@@ -28,4 +28,4 @@ trainer:
   save_dir: "saved"
   seed: 1
 writer:
-  run_name: "av-conv-tasnet-one-batch-test"
+  run_name: "conv-tasnet-one-batch-test"
