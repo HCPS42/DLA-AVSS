@@ -3,7 +3,7 @@ defaults:
   - datasets: dla-online-train
   - model: conv-tasnet
   - writer: wandb
-  - metrics: metrics-train
+  - metrics: metrics-train-fast
   - transforms: waveform
   - _self_
 optimizer:
@@ -19,6 +19,7 @@ lr_scheduler:
 loss_function:
   _target_: src.loss.SNRLoss
 trainer:
+  scheduling: "stepwise" # "epochwise" or "stepwise"
   log_step: 100
   n_epochs: 100
   epoch_len: 1000
