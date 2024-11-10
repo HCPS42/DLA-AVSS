@@ -15,3 +15,5 @@ hydra-core
 black
 isort
 pre-commit
+
+opencv-python

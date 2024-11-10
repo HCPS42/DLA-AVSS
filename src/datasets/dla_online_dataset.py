@@ -78,15 +78,19 @@ class DLAOnlineDataset(BaseDataset):
             speaker_2_path = audio_path / "s2" / file
             mouth_1_path = self.dir / "mouths" / (speaker_1_id + ".npz")
             mouth_2_path = self.dir / "mouths" / (speaker_2_id + ".npz")
+            visual_1_path = self.dir / "visual_embeddings" / (speaker_1_id + ".npz")
+            visual_2_path = self.dir / "visual_embeddings" / (speaker_2_id + ".npz")
 
             speakers[speaker_1_id] = {
                 "speaker_path": str(speaker_1_path),
                 "mouth_path": str(mouth_1_path),
+                "visual_path": str(visual_1_path),
             }
 
             speakers[speaker_2_id] = {
                 "speaker_path": str(speaker_2_path),
                 "mouth_path": str(mouth_2_path),
+                "visual_path": str(visual_2_path),
             }
 
         print("splitting ...")
@@ -125,6 +129,7 @@ class DLAOnlineDataset(BaseDataset):
                 data_dict["speaker_path"]
             )
             data_dict[f"mouth_{num}_npz"] = self.load_object(data_dict["mouth_path"])
+            data_dict[f"visual_{num}_emb"] = self.load_object(data_dict["visual_path"])
 
             return data_dict
 
@@ -135,6 +140,10 @@ class DLAOnlineDataset(BaseDataset):
         data_dict["mix_wav"] = (
             data_dict["speaker_1_wav"] + data_dict["speaker_2_wav"]
         ) / 2
+
+        data_dict["mix_visual"] = np.concatenate(
+            (data_dict["visual_1_emb"], data_dict["visual_2_emb"]), axis=1
+        )
 
         return data_dict
 

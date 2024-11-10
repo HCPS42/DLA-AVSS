@@ -22,7 +22,7 @@ def collate_fn(dataset_items: list[dict]):
         - Path to the file on the disk. Has suffix `_path`
         - Audio waveform. Has suffix `_wav`
         - Spectrogram. Has suffix `_spec`
-        - Mouth landmarks. Has suffix `_npz`
+        - Mouth landmarks embeddings. Has suffix `_emb`
 
         Possible prefixes are `mix`, `speaker_1`, `speaker_2` for waveforms and spectrograms.
 
@@ -41,7 +41,7 @@ def collate_fn(dataset_items: list[dict]):
     path_keys = get_type_keys("path")
     wav_keys = get_type_keys("wav")
     spec_keys = get_type_keys("spec")
-    # npz_keys = get_type_keys("npz")
+    emb_keys = get_type_keys("emb")
 
     result_batch = {}
 
@@ -101,7 +101,12 @@ def collate_fn(dataset_items: list[dict]):
         }
     )
 
-    # we don't put npz in the batch in current version
-    # (audio only)
+    # collate video embeddings
+    result_batch.update(
+        {
+            key: default_collate([item[key] for item in dataset_items])
+            for key in emb_keys
+        }
+    )
 
     return result_batch

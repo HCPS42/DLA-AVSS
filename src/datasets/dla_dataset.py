@@ -67,16 +67,39 @@ class DLADataset(BaseDataset):
             data_dict["mouth_1_path"] = str(
                 self.dir / "mouths" / (speaker_1_id + ".npz")
             )
+            data_dict["visual_1_path"] = str(
+                self.dir / "visual_embeddings" / (speaker_1_id + ".npz")
+            )
 
             data_dict["mouth_2_path"] = str(
                 self.dir / "mouths" / (speaker_2_id + ".npz")
             )
+            data_dict["visual_2_path"] = str(
+                self.dir / "visual_embeddings" / (speaker_2_id + ".npz")
+            )
+
+            data_dict["mix_visual_path"] = ""
 
             index.append(data_dict)
 
         write_json(index, str(index_path))
 
         return index
+
+    def __getitem__(self, ind):
+        data_dict = self._index[ind]
+        for path_key in filter(lambda key: key in data_dict, self._attrs):
+            if "mix_visual" not in path_key:
+                object_key = self._attrs_mapping[path_key]
+                data_dict[object_key] = self.load_object(data_dict[path_key])
+
+        data_dict["mix_visual"] = np.concatenate(
+            (data_dict["visual_1_emb"], data_dict["visual_2_emb"]), axis=1
+        )
+
+        print("OKOKOK")
+
+        return data_dict
 
     def _get_index_path(self, part):
         return self.dir / f"{part}_index.json"
