@@ -1,6 +1,6 @@
 defaults:
   - dataloader: conv-tasnet
-  - datasets: dla-online-train
+  - datasets: dla-train
   - model: conv-tasnet
   - writer: wandb
   - metrics: metrics-train-fast
@@ -8,23 +8,17 @@ defaults:
   - _self_
 optimizer:
   _target_: torch.optim.Adam
-  lr: 1e-6
-lr_scheduler:
-  _target_: torch.optim.lr_scheduler.OneCycleLR
-  max_lr: 2e-3
-  pct_start: 0.01
-  steps_per_epoch: ${trainer.epoch_len}
-  epochs: ${trainer.n_epochs}
-  anneal_strategy: cos
+  lr: 1e-5
+lr_scheduler: null
 loss_function:
   _target_: src.loss.SNRLoss
 trainer:
-  scheduling: "stepwise" # "epochwise" or "stepwise"
   log_step: 100
-  n_epochs: 100
-  epoch_len: 1000
+  n_epochs: 30
+  epoch_len: null
   device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
+  from_pretrained: null
   device: "auto" # device name or "auto"
   override: False # if True, will override the previous run with the same name
   monitor: "max val_si-snr-i" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
@@ -33,4 +27,4 @@ trainer:
   save_dir: "saved"
   seed: 1
 writer:
-  run_name: "conv-tasnet-baseline"
+  run_name: "conv-tasnet-finetune"

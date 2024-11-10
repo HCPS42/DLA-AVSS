@@ -50,7 +50,8 @@ def main(config):
     optimizer = instantiate(config.optimizer, params=trainable_params)
 
     lr_scheduler = instantiate(config.lr_scheduler, optimizer=optimizer)
-    lr_scheduler._last_lr = [group["lr"] for group in optimizer.param_groups]
+    if lr_scheduler:
+        lr_scheduler._last_lr = [group["lr"] for group in optimizer.param_groups]
 
     # epoch_len = number of iterations for iteration-based training
     # epoch_len = None or len(dataloader) for epoch-based training
