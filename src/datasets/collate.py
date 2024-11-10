@@ -41,7 +41,7 @@ def collate_fn(dataset_items: list[dict]):
     path_keys = get_type_keys("path")
     wav_keys = get_type_keys("wav")
     spec_keys = get_type_keys("spec")
-    emb_keys = get_type_keys("emb")
+    visual_keys = get_type_keys("visual")
 
     result_batch = {}
 
@@ -105,7 +105,7 @@ def collate_fn(dataset_items: list[dict]):
     result_batch.update(
         {
             key: default_collate([item[key] for item in dataset_items])
-            for key in emb_keys
+            for key in visual_keys
         }
     )
 

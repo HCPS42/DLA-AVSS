@@ -36,12 +36,6 @@ class Trainer(BaseTrainer):
             metric_funcs = self.metrics["train"]
             self.optimizer.zero_grad()
 
-        # add visual features to the batch
-
-        # batch["mouth_1_npz"]
-        print(batch.keys())
-        assert 0
-
         outputs = self.model(**batch)
         batch.update(outputs)
 

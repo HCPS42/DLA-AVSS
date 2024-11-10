@@ -27,7 +27,6 @@ class BaseDataset(Dataset):
         "mouth_2_path",
         "visual_1_path",
         "visual_2_path",
-        "mix_visual_path",
     ]
     _attrs_mapping = {
         "mix_path": "mix_wav",
@@ -37,7 +36,6 @@ class BaseDataset(Dataset):
         "mouth_2_path": "mouth_2_npz",
         "visual_1_path": "visual_1_emb",
         "visual_2_path": "visual_2_emb",
-        "mix_visual_path": "mix_visual",
     }
 
     def __init__(

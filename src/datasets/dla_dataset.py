@@ -89,15 +89,12 @@ class DLADataset(BaseDataset):
     def __getitem__(self, ind):
         data_dict = self._index[ind]
         for path_key in filter(lambda key: key in data_dict, self._attrs):
-            if "mix_visual" not in path_key:
-                object_key = self._attrs_mapping[path_key]
-                data_dict[object_key] = self.load_object(data_dict[path_key])
+            object_key = self._attrs_mapping[path_key]
+            data_dict[object_key] = self.load_object(data_dict[path_key])
 
         data_dict["mix_visual"] = np.concatenate(
             (data_dict["visual_1_emb"], data_dict["visual_2_emb"]), axis=1
         )
-
-        print("OKOKOK")
 
         return data_dict
 
