@@ -200,7 +200,4 @@ class ConvTasNetModel(BaseModel):
             .view(batch_size, self.num_speakers, -1)
         )
 
-        print(output.shape)
-        assert 0
-
         return {"output_wav": output}
