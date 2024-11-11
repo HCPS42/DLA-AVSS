@@ -1,2 +1,13 @@
 train: null
+  # speaker_1_wav:
+  #   _target_: torch_audiomentations.Gain
+  #   min_gain_in_db: -5
+  #   max_gain_in_db: 5
+  #   output_type: tensor
+  # speaker_2_wav:
+  #   _target_: torch_audiomentations.Gain
+  #   min_gain_in_db: -5
+  #   max_gain_in_db: 5
+  #   output_type: tensor
+
 inference: null

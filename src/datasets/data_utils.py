@@ -38,7 +38,7 @@ def move_batch_transforms_to_device(batch_transforms, device):
     """
     for transform_type in batch_transforms.keys():
         transforms = batch_transforms.get(transform_type)
-        if transforms is not None:
+        if transforms is not None and not transform_type.startswith("_"):
             for transform_name in transforms.keys():
                 transforms[transform_name] = transforms[transform_name].to(device)
 

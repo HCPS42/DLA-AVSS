@@ -137,7 +137,7 @@ class BaseDataset(Dataset):
             ):
                 instance_data[transform_name] = self.instance_transforms[
                     transform_name
-                ](instance_data[transform_name])
+                ](instance_data[transform_name].unsqueeze(0)).squeeze(0)
         return instance_data
 
     @staticmethod

@@ -132,11 +132,13 @@ class DLAOnlineDataset(BaseDataset):
         data_dict.update(get_object(i, 1))
         data_dict.update(get_object(j, 2))
 
-        data_dict["mix_wav"] = (
-            data_dict["speaker_1_wav"] + data_dict["speaker_2_wav"]
+        instance_data = self.preprocess_data(data_dict)
+
+        instance_data["mix_wav"] = (
+            instance_data["speaker_1_wav"] + instance_data["speaker_2_wav"]
         ) / 2
 
-        return data_dict
+        return instance_data
 
     def __len__(self):
         return len(self._pairs)
