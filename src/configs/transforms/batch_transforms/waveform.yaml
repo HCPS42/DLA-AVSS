@@ -1,7 +1,2 @@
-_resample:
-  _target_: src.transforms.Resample
-  orig_freq: 16000
-  new_freq: 8000
-
 train: null
 inference: null
