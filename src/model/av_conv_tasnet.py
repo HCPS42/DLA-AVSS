@@ -1,4 +1,5 @@
 import copy
+import math
 
 import torch
 import torch.nn as nn
@@ -206,7 +207,7 @@ class TemporalConvNet(nn.Module):
         x = self.layer_norm(x)
         x = self.bottleneck_conv1x1(x)
 
-        mixture = x
+        # mixture = x
 
         batch, B, K = x.size()
 
@@ -261,11 +262,13 @@ class AVConvTasNetModel(BaseModel):
                 nn.init.xavier_normal_(p)
 
     def forward(self, mix_wav, mix_visual, **batch):
+        batch_size = mix_wav.size(0)
         mix_wav = mix_wav.squeeze(1)
+        mix_wav = mix_wav.repeat_interleave(2, dim=0)
 
-        print(mix_wav.shape)
-        print()
-        print(mix_visual.shape)
+        mix_visual = torch.split(mix_visual, 512, dim=2)
+        mix_visual = torch.stack(mix_visual, dim=1)
+        mix_visual = mix_visual.view(2 * mix_visual.size(0), 50, 512)
 
         mixture_w = self.encoder(mix_wav)
         est_mask = self.separator(mixture_w, mix_visual)
@@ -275,4 +278,6 @@ class AVConvTasNetModel(BaseModel):
         T_origin = mix_wav.size(-1)
         T_conv = est_source.size(-1)
         est_source = F.pad(est_source, (0, T_origin - T_conv))
-        return est_source
+        est_source = est_source.view(batch_size, 2, 32000)
+
+        return {"output_wav": est_source}
