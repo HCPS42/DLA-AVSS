@@ -83,7 +83,7 @@ class DLADataset(BaseDataset):
         write_json(index, str(index_path))
 
         return index
-    
+
     def __getitem__(self, ind):
         data_dict = self._index[ind]
 
@@ -94,7 +94,7 @@ class DLADataset(BaseDataset):
         data_dict["mix_visual"] = np.stack(
             (data_dict["visual_1_emb"], data_dict["visual_2_emb"]), axis=0
         )
-        
+
         return data_dict
 
     def _get_index_path(self, part):
