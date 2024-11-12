@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -6,19 +5,20 @@ from torch import nn
 from src.model.base_model import BaseModel
 
 
-class DepthConv1d(nn.Module):
+class DepthwiseConv1d(nn.Module):
     """
-    Depthwise convolutional module.
-
-    Args:
-        in_channels (int): Number of input channels.
-        out_channels (int): Number of output channels.
-        kernel_size (int): Kernel size for depthwise convolution.
-        padding (int): Padding size for depthwise convolution.
-        dilation (int): Dilation rate for depthwise convolution. Default is 1.
+    Depthwise convolutional module. (1-D Conv block in the paper)
     """
 
     def __init__(self, in_channels, out_channels, kernel_size, padding, dilation=1):
+        """
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels.
+            kernel_size (int): Kernel size for depthwise convolution.
+            padding (int): Padding size for depthwise convolution.
+            dilation (int): Dilation rate for depthwise convolution. Default is 1.
+        """
         super().__init__()
 
         self.conv = nn.Conv1d(in_channels, out_channels, kernel_size=1)
@@ -31,7 +31,9 @@ class DepthConv1d(nn.Module):
             padding=padding,
         )
         self.residual_conv = nn.Conv1d(out_channels, in_channels, kernel_size=1)
-        self.skip_conv = nn.Conv1d(out_channels, in_channels, kernel_size=1)
+        self.skip_conv = nn.Conv1d(
+            out_channels, in_channels, kernel_size=1
+        )  # S_c in the paper
 
         self.prelu = nn.PReLU()
         self.norm1 = nn.GroupNorm(1, out_channels, eps=1e-8)
@@ -47,19 +49,9 @@ class DepthConv1d(nn.Module):
         return residual, skip
 
 
-class TCN(nn.Module):
+class TemporalConvNet(nn.Module):
     """
     Temporal Convolutional Network.
-
-    Args:
-        in_channels (int): Number of input channels.
-        out_channels (int): Number of output channels.
-        bottleneck_channels (int): Number of channels in the bottleneck.
-        hidden_channels (int): Number of hidden channels.
-        num_conv_blocks (int): Number of convolutional blocks in each TCN block.
-        num_tcn_blocks (int): Number of TCN blocks.
-        kernel_size (int): Kernel size for convolutional layers.
-        dilated (bool): If True, uses dilated convolutions. Default is True.
     """
 
     def __init__(
@@ -73,9 +65,20 @@ class TCN(nn.Module):
         kernel_size,
         dilated=True,
     ):
+        """
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels.
+            bottleneck_channels (int): Number of channels in the bottleneck.
+            hidden_channels (int): Number of channels in the convolutional blocks.
+            num_conv_blocks (int): Number of convolutional blocks in each TCN block.
+            num_tcn_blocks (int): Number of TCN blocks.
+            kernel_size (int): Kernel size for convolutional layers.
+            dilated (bool): If True, uses dilated convolutions. Default is True.
+        """
         super().__init__()
 
-        self.input_norm = nn.GroupNorm(1, in_channels, eps=1e-8)
+        self.norm = nn.GroupNorm(1, in_channels, eps=1e-8)
         self.bottleneck_conv = nn.Conv1d(
             in_channels, bottleneck_channels, kernel_size=1
         )
@@ -85,22 +88,20 @@ class TCN(nn.Module):
             for i in range(num_conv_blocks):
                 dilation = 2**i if dilated else 1
                 padding = dilation
-                self.tcn_blocks.append(
-                    DepthConv1d(
-                        bottleneck_channels,
-                        hidden_channels,
-                        kernel_size,
-                        dilation=dilation,
-                        padding=padding,
-                    )
+                block = DepthwiseConv1d(
+                    bottleneck_channels,
+                    hidden_channels,
+                    kernel_size,
+                    dilation=dilation,
+                    padding=padding,
                 )
+                self.tcn_blocks.append(block)
 
-        self.output_conv = nn.Sequential(
-            nn.PReLU(), nn.Conv1d(bottleneck_channels, out_channels, kernel_size=1)
-        )
+        self.prelu = nn.PReLU()
+        self.output_conv = nn.Conv1d(bottleneck_channels, out_channels, kernel_size=1)
 
     def forward(self, x):
-        x = self.bottleneck_conv(self.input_norm(x))
+        x = self.bottleneck_conv(self.norm(x))
 
         skip_sum = 0
         for layer in self.tcn_blocks:
@@ -108,22 +109,15 @@ class TCN(nn.Module):
             x = x + residual
             skip_sum = skip_sum + skip
 
-        x = self.output_conv(skip_sum)
+        x = self.output_conv(self.prelu(skip_sum))
 
         return x
 
 
 class ConvTasNetModel(BaseModel):
     """
-    Audio-Visual Conv-TasNet Model for source separation.
-
-    Args:
-        num_filters (int): Number of filters in the encoder and decoder. (N in the paper)
-        filter_length (int): Length of the filters in samples in milliseconds. (L in the paper)
-        bottleneck_channels (int): Number of channels in the bottleneck. (B in the paper)
-        conv_kernel_size (int): Kernel size in the convolutional blocks. (P in the paper)
-        num_conv_blocks (int): Number of convolutional blocks in each TCN block. (X in the paper)
-        num_tcn_blocks (int): Number of TCN blocks. (R in the paper)
+    Conv-TasNet Model.
+    Paper: https://arxiv.org/abs/1809.07454
     """
 
     def __init__(
@@ -131,17 +125,25 @@ class ConvTasNetModel(BaseModel):
         num_filters,
         filter_length,
         bottleneck_channels,
+        conv_num_channels,
         conv_kernel_size,
         num_conv_blocks,
         num_tcn_blocks,
     ):
+        """
+        Args:
+            num_filters (int): Number of filters in the encoder and decoder. (N in the paper)
+            filter_length (int): Length of the filters in time steps. (L in the paper)
+            bottleneck_channels (int): Number of channels in the bottleneck. (B in the paper)
+            conv_num_channels (int): Number of channels in the convolutional blocks. (H in the paper)
+            conv_kernel_size (int): Kernel size in the convolutional blocks. (P in the paper)
+            num_conv_blocks (int): Number of convolutional blocks in each TCN block. (X in the paper)
+            num_tcn_blocks (int): Number of TCN blocks. (R in the paper)
+        """
         super().__init__()
 
-        self.num_speakers = 2
-        self.sr = 16000
-
-        self.filter_length = int(self.sr * filter_length / 1000)
-        self.stride = self.filter_length // 2
+        self.filter_length = filter_length
+        self.stride = filter_length // 2
 
         self.encoder = nn.Conv1d(
             1, num_filters, self.filter_length, bias=False, stride=self.stride
@@ -150,54 +152,58 @@ class ConvTasNetModel(BaseModel):
             num_filters, 1, self.filter_length, bias=False, stride=self.stride
         )
 
-        self.tcn = TCN(
+        self.tcn = TemporalConvNet(
             num_filters,
-            num_filters * self.num_speakers,
+            num_filters * 2,
             bottleneck_channels,
-            bottleneck_channels * 4,
+            conv_num_channels,
             num_conv_blocks,
             num_tcn_blocks,
             conv_kernel_size,
         )
 
-    def pad_signal(self, x):
-        if x.dim() == 2:
-            x = x.unsqueeze(1)
-
-        batch_size, _, nsample = x.size()
-
-        remainder = (self.stride + nsample % self.filter_length) % self.filter_length
-        rest = (self.filter_length - remainder) % self.filter_length
-
-        pad = torch.zeros(
-            batch_size,
-            1,
-            rest + 2 * self.stride,
-            device=x.device,
-            dtype=x.dtype,
+    def pad(self, x):
+        time_steps = x.size(2)
+        zero_tail = (
+            self.stride
+            + self.filter_length
+            - (self.stride + time_steps) % self.filter_length
         )
-        x = torch.cat([pad[:, :, : self.stride], x, pad[:, :, self.stride :]], dim=2)
+        x = F.pad(x, (self.stride, zero_tail))
+        return x, zero_tail
 
-        return x, rest
+    def forward(self, mix_wav, **batch):
+        """
+        Args:
+            mix_wav (torch.Tensor): Input tensor representing the mixed waveform.
+                Shape: (batch_size, 1, time_steps), tested on time_steps = 32000.
 
-    def forward(self, mix_wav: torch.Tensor, **batch):
-        x, rest = self.pad_signal(mix_wav)
-        batch_size = x.size(0)
+        Returns:
+            dict: A dictionary containing the separated waveforms.
+                - output_wav (torch.Tensor): Output tensor representing the separated waveforms.
+                    Shape: (batch_size, 2, time_steps)
+        """
+        batch_size = mix_wav.size(0)
+
+        x, zero_tail = self.pad(mix_wav)
+        # x: (batch_size, 1, 32048)
 
         encoded = self.encoder(x)
+        # encoded: (batch_size, 512, 2002)
 
-        masks = torch.sigmoid(self.tcn(encoded)).view(
-            batch_size, self.num_speakers, -1, encoded.size(2)
-        )
+        masks = self.tcn(encoded)
+        # masks: (batch_size, 1024, 2002)
+
+        masks = torch.sigmoid(masks).view(batch_size, 2, -1, encoded.size(2))
+        # masks: (batch_size, 2, 512, 2002)
+
         masked = encoded.unsqueeze(1) * masks
+        # masked: (batch_size, 2, 512, 2002)
 
-        output = self.decoder(
-            masked.view(batch_size * self.num_speakers, -1, encoded.size(2))
-        )
-        output = (
-            output[:, :, self.stride : -(rest + self.stride)]
-            .contiguous()
-            .view(batch_size, self.num_speakers, -1)
-        )
+        decoded = self.decoder(masked.view(batch_size * 2, -1, encoded.size(2)))
+        # decoded: (batch_size * 2, 1, 32048)
 
-        return {"output_wav": output}
+        decoded = decoded[:, :, self.stride : -zero_tail].view(batch_size, 2, -1)
+        # decoded: (batch_size, 2, 32000)
+
+        return {"output_wav": decoded}
