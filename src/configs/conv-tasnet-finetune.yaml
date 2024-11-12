@@ -1,9 +1,9 @@
 defaults:
-  - dataloader: conv-tasnet
   - datasets: dla-train
+  - dataloader: conv-tasnet
   - model: conv-tasnet
   - writer: wandb
-  - metrics: metrics-train-fast
+  - metrics: metrics-train
   - transforms: waveform
   - _self_
 optimizer:

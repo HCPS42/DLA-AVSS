@@ -25,6 +25,8 @@ class BaseDataset(Dataset):
         "speaker_2_path",
         "mouth_1_path",
         "mouth_2_path",
+        "visual_1_path",
+        "visual_2_path",
     ]
     _attrs_mapping = {
         "mix_path": "mix_wav",
@@ -32,6 +34,8 @@ class BaseDataset(Dataset):
         "speaker_2_path": "speaker_2_wav",
         "mouth_1_path": "mouth_1_npz",
         "mouth_2_path": "mouth_2_npz",
+        "visual_1_path": "visual_1_emb",
+        "visual_2_path": "visual_2_emb",
     }
 
     def __init__(
@@ -100,9 +104,12 @@ class BaseDataset(Dataset):
             audio, sr = torchaudio.load(path)
             assert sr == 16000
             return audio
-        elif path.endswith(".npz"):
-            with np.load(path) as data:
-                return data
+        elif "visual_embeddings" in path:
+            with np.load(path) as file:
+                return file["embeddings"]
+        elif "mouths" in path:
+            with np.load(path) as file:
+                return file["data"]
         else:
             raise ValueError(f"Unsupported file format: {path}")
 
@@ -174,7 +181,13 @@ class BaseDataset(Dataset):
                 the dataset. The dict has required metadata information,
                 such as label and object path.
         """
-        attrs = ["mix_path", "mouth_1_path", "mouth_2_path"]
+        attrs = [
+            "mix_path",
+            "mouth_1_path",
+            "mouth_2_path",
+            "visual_1_path",
+            "visual_2_path",
+        ]
         for entry in index:
             for attr in attrs:
                 if attr not in entry:

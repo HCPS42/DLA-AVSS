@@ -16,7 +16,7 @@ trainer:
   log_step: 50
   n_epochs: 1
   epoch_len: 300
-  device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav"] # which tensors should be on device (ex. GPU)
+  device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav", "mix_visual"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"
   override: False # if True, will override the previous run with the same name
@@ -26,4 +26,4 @@ trainer:
   save_dir: "saved"
   seed: 1
 writer:
-  run_name: "conv-tasnet-one-batch-test"
+  run_name: "one-batch-test"
