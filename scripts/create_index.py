@@ -4,6 +4,8 @@ import random
 import sys
 from pathlib import Path
 
+sys.path += [".", ".."]
+
 import numpy as np
 import torch
 import torchaudio
@@ -15,7 +17,6 @@ from tqdm import tqdm
 from src.utils.init_utils import set_random_seed
 from src.utils.io_utils import write_json
 
-sys.path += [".", ".."]
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 
@@ -150,9 +151,9 @@ if __name__ == "__main__":
         speaker_2_path = data_dir / "audio" / "val_online" / "s2" / filename
         mix_path = data_dir / "audio" / "val_online" / "mix" / filename
 
-        torchaudio.save(speaker_1_path, mix, sr)
-        torchaudio.save(speaker_2_path, wav1, sr)
-        torchaudio.save(mix_path, wav2, sr)
+        torchaudio.save(speaker_1_path, wav1, sr)
+        torchaudio.save(speaker_2_path, wav2, sr)
+        torchaudio.save(mix_path, mix, sr)
 
         val_index.append(
             {
