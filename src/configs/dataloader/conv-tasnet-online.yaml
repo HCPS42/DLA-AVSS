@@ -3,9 +3,11 @@ train:
   batch_size: 32
   num_workers: 8
   pin_memory: True
+  sampler:
+    _target_: torch.utils.data.RandomSampler
 
 inference:
   _target_: torch.utils.data.DataLoader
-  batch_size: 32
+  batch_size: 64
   num_workers: 8
   pin_memory: True

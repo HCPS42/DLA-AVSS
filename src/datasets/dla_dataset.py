@@ -43,6 +43,7 @@ class DLADataset(BaseDataset):
                 the dataset. The dict has required metadata information,
                 such as label and object path.
         """
+        assert part in ("train", "test", "val")
         index = []
 
         audio_path = self.dir / "audio" / part

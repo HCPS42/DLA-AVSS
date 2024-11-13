@@ -20,6 +20,7 @@ class WandBWriter:
         run_id=None,
         run_name=None,
         mode="online",
+        sample_rate=16000,
         **kwargs,
     ):
         """
@@ -64,6 +65,8 @@ class WandBWriter:
         # used to separate Partition1 and Partition2 metrics
         self.mode = ""
         self.timer = datetime.now()
+
+        self.sample_rate = sample_rate
 
     def set_step(self, step, mode="train"):
         """
@@ -157,7 +160,7 @@ class WandBWriter:
             {self._object_name(image_name): self.wandb.Image(image)}, step=self.step
         )
 
-    def add_audio(self, audio_name, audio, sample_rate=16000):
+    def add_audio(self, audio_name, audio):
         """
         Log an audio to the experiment tracker.
 
@@ -170,7 +173,7 @@ class WandBWriter:
         self.wandb.log(
             {
                 self._object_name(audio_name): self.wandb.Audio(
-                    audio, sample_rate=sample_rate
+                    audio, sample_rate=self.sample_rate
                 )
             },
             step=self.step,
