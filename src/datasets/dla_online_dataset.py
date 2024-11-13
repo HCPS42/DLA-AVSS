@@ -1,6 +1,3 @@
-import itertools
-import os
-import random
 from pathlib import Path
 
 import numpy as np
@@ -8,7 +5,7 @@ import torch
 from tqdm.auto import tqdm
 
 from src.datasets.base_dataset import BaseDataset
-from src.utils.io_utils import ROOT_PATH, read_json, write_json
+from src.utils.io_utils import ROOT_PATH, read_json
 
 
 class DLAOnlineDataset(BaseDataset):
@@ -16,9 +13,7 @@ class DLAOnlineDataset(BaseDataset):
     Dataset for DLA course assignment.
     """
 
-    def __init__(
-        self, dir, part="train", ratio=0.9, shuffle=False, limit=None, *args, **kwargs
-    ):
+    def __init__(self, dir, part="train", *args, **kwargs):
         """
         Args:
             dir (str): Path to the custom directory.
@@ -34,17 +29,6 @@ class DLAOnlineDataset(BaseDataset):
         else:
             raise ValueError("No index. Run scripts/create_index.py first.")
 
-        print("preparing dataset ...")
-        self._pairs = np.stack(
-            np.unravel_index(np.arange(len(index) ** 2), (len(index), len(index)))
-        ).T
-        self._pairs = self._pairs[self._pairs[:, 0] < self._pairs[:, 1]]
-
-        if limit is not None:
-            self.len = limit
-        else:
-            self.len = len(self._pairs)
-
         super().__init__(index, *args, **kwargs)
 
     @staticmethod
@@ -55,7 +39,7 @@ class DLAOnlineDataset(BaseDataset):
         return self.dir / f"{part}_online_index.json"
 
     def __getitem__(self, ind):
-        i, j = self._pairs[ind]
+        i, j = self._get_pair(ind)
 
         def get_object(idx, num):
             data_dict = dict(self._index[idx])
@@ -79,4 +63,7 @@ class DLAOnlineDataset(BaseDataset):
         return instance_data
 
     def __len__(self):
-        return self.len
+        return len(self._index) ** 2
+
+    def _get_pair(self, ind):
+        return np.unravel_index(ind, (len(self._index), len(self._index)))
