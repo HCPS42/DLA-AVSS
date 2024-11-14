@@ -1,2 +1,8 @@
-train: null
-inference: null
+train:
+  mix_wav: ${transforms._resample}
+  speaker_1_wav: ${transforms._resample}
+  speaker_2_wav: ${transforms._resample}
+inference:
+  mix_wav: ${transforms._resample}
+  speaker_1_wav: ${transforms._resample}
+  speaker_2_wav: ${transforms._resample}

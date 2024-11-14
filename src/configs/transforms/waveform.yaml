@@ -1,5 +1,10 @@
 # For waveform-based models
 
+_resample:
+  _target_: torchaudio.transforms.Resample
+  orig_freq: 16000
+  new_freq: 8000
+
 defaults:
   - batch_transforms: waveform
   - instance_transforms: waveform
