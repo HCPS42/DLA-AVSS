@@ -2,11 +2,10 @@ import os
 
 import numpy as np
 import torch
-from torchvision.transforms import CenterCrop, Compose, Normalize
-from tqdm import tqdm
-
 from lipreading.model import Lipreading
 from lipreading.utils import load_json, load_model
+from torchvision.transforms import CenterCrop, Compose, Normalize
+from tqdm import tqdm
 
 
 def extract_visual_embeddings():

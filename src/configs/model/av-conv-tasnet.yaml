@@ -1,0 +1,10 @@
+_target_: src.model.AVConvTasNetModel
+num_filters: 512           # N
+filter_length: 32          # L (in time steps; 32/16000 = 2ms)
+bottleneck_channels: 128   # B
+conv_num_channels: 512     # H
+conv_kernel_size: 3        # P
+num_conv_blocks: 8         # D
+num_audio_tcn_blocks: 3    # N_a
+num_fusion_tcn_blocks: 3   # N_f
+visual_emb_dim: 512
