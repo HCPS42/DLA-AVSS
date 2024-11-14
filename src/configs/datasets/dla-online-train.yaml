@@ -3,13 +3,9 @@ train:
   dir: "data/dla_dataset"
   part: "train"
   instance_transforms: ${transforms.instance_transforms.train}
-  shuffle: true
-  ratio: 0.98
 
 val:
-  _target_: src.datasets.DLAOnlineDataset
+  _target_: src.datasets.DLADataset
   dir: "data/dla_dataset"
-  part: "val"
+  part: "val_online"
   instance_transforms: ${transforms.instance_transforms.inference}
-  shuffle: true
-  limit: 5000

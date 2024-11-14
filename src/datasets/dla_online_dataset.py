@@ -1,7 +1,5 @@
-import itertools
-import os
-import random
 from pathlib import Path
+import os
 
 import numpy as np
 import torch
@@ -16,9 +14,7 @@ class DLAOnlineDataset(BaseDataset):
     Dataset for DLA course assignment.
     """
 
-    def __init__(
-        self, dir, part="train", ratio=0.9, shuffle=False, limit=None, *args, **kwargs
-    ):
+    def __init__(self, dir, part="train", *args, **kwargs):
         """
         Args:
             dir (str): Path to the custom directory.
@@ -32,24 +28,7 @@ class DLAOnlineDataset(BaseDataset):
         if index_path.exists():
             index = read_json(str(index_path))
         else:
-            index = self._create_index(part, ratio=ratio)
-
-        # TODO utilize torch.data.utils.RandomSampler
-        print("preparing dataset ...")
-        self._pairs = np.stack(
-            np.unravel_index(np.arange(len(index) ** 2), (len(index), len(index)))
-        ).T
-        self._pairs = self._pairs[self._pairs[:, 0] < self._pairs[:, 1]]
-
-        if shuffle:
-            for i in tqdm(
-                range(len(self._pairs)), total=len(self._pairs), desc="shuffling ..."
-            ):
-                j = random.randint(i, len(self._pairs) - 1)
-                self._pairs[i], self._pairs[j] = self._pairs[j], self._pairs[i]
-
-        if limit is not None:
-            self._pairs = self._pairs[:limit]
+            raise ValueError("No index. Run scripts/create_index.py first.")
 
         super().__init__(index, *args, **kwargs)
 
@@ -107,21 +86,8 @@ class DLAOnlineDataset(BaseDataset):
     def _get_index_path(self, part):
         return self.dir / f"{part}_online_index.json"
 
-    @staticmethod
-    def _random_split(index, ratio):
-        roll = np.random.uniform(0, 1, len(index))
-        train_indeces = roll < ratio
-
-        train_index, val_index = [], []
-        for item, flag in zip(index, train_indeces):
-            if flag:
-                train_index.append(item)
-            else:
-                val_index.append(item)
-        return train_index, val_index
-
     def __getitem__(self, ind):
-        i, j = self._pairs[ind]
+        i, j = self._get_pair(ind)
 
         def get_object(idx, num):
             data_dict = dict(self._index[idx])
@@ -150,4 +116,7 @@ class DLAOnlineDataset(BaseDataset):
         return instance_data
 
     def __len__(self):
-        return len(self._pairs)
+        return len(self._index) ** 2
+
+    def _get_pair(self, ind):
+        return np.unravel_index(ind, (len(self._index), len(self._index)))
