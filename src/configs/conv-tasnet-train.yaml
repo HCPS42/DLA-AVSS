@@ -1,31 +1,33 @@
 defaults:
-  - dataloader: onebatchtest
-  - datasets: dla-onebatchtest
-  - model: mlp
+  - dataloader: conv-tasnet-online
+  - datasets: dla-online-train
+  - model: conv-tasnet
   - writer: wandb
   - metrics: metrics-train
-  - transforms: spectrogram
+  - transforms: waveform
   - _self_
 optimizer:
   _target_: torch.optim.Adam
-  lr: 3e-4
-lr_scheduler: null
+  lr: 5e-4
+lr_scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: 200000
 loss_function:
-  _target_: src.loss.Loss
-  loss: "mse"
-  output: "spec"
+  _target_: src.loss.SNRLoss
 trainer:
-  log_step: 50
-  n_epochs: 10
-  epoch_len: null
-  device_tensors: ["mix_spec", "speaker_1_spec", "speaker_2_spec"] # which tensors should be on device (ex. GPU)
+  scheduling: "stepwise" # "epochwise" or "stepwise"
+  log_step: 100
+  n_epochs: 200
+  epoch_len: 1000
+  device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: "auto" # device name or "auto"
   override: False # if True, will override the previous run with the same name
   monitor: "max val_si-snr-i" # "off" or "max/min metric_name", i.e. our goal is to maximize/minimize metric
   save_period: 5 # checkpoint each save_period epochs in addition to the best epoch
   early_stop: ${trainer.n_epochs} # epochs for early stopping
+  max_grad_norm: 5
   save_dir: "saved"
   seed: 1
 writer:
-  run_name: "mlp-one-batch-test"
+  run_name: "conv-tasnet"
