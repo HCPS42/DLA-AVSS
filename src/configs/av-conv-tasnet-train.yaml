@@ -1,6 +1,6 @@
 defaults:
   - datasets: dla-online-train
-  - dataloader: av-conv-tasnet
+  - dataloader: av-conv-tasnet-online
   - model: av-conv-tasnet
   - writer: wandb
   - metrics: metrics-train
@@ -8,7 +8,7 @@ defaults:
   - _self_
 optimizer:
   _target_: torch.optim.Adam
-  lr: 2e-3
+  lr: 5e-4
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.CosineAnnealingLR
   T_max: 200000
@@ -30,4 +30,4 @@ trainer:
   save_dir: "saved"
   seed: 1
 writer:
-  run_name: "av-conv-tasnet-train"
+  run_name: "av-conv-tasnet"

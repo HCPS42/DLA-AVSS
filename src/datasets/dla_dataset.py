@@ -85,18 +85,5 @@ class DLADataset(BaseDataset):
 
         return index
 
-    def __getitem__(self, ind):
-        data_dict = self._index[ind]
-
-        for path_key in filter(lambda key: key in data_dict, self._attrs):
-            object_key = self._attrs_mapping[path_key]
-            data_dict[object_key] = self.load_object(data_dict[path_key])
-
-        data_dict["mix_visual"] = np.stack(
-            (data_dict["visual_1_emb"], data_dict["visual_2_emb"]), axis=0
-        )
-
-        return data_dict
-
     def _get_index_path(self, part):
         return self.dir / f"{part}_index.json"

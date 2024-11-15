@@ -30,4 +30,4 @@ trainer:
   save_dir: "saved"
   seed: 1
 writer:
-  run_name: "conv-tasnet-train"
+  run_name: "conv-tasnet"

@@ -23,8 +23,6 @@ class BaseDataset(Dataset):
         "mix_path",
         "speaker_1_path",
         "speaker_2_path",
-        "mouth_1_path",
-        "mouth_2_path",
         "visual_1_path",
         "visual_2_path",
     ]
@@ -32,8 +30,6 @@ class BaseDataset(Dataset):
         "mix_path": "mix_wav",
         "speaker_1_path": "speaker_1_wav",
         "speaker_2_path": "speaker_2_wav",
-        "mouth_1_path": "mouth_1_npz",
-        "mouth_2_path": "mouth_2_npz",
         "visual_1_path": "visual_1_emb",
         "visual_2_path": "visual_2_emb",
     }
@@ -83,6 +79,10 @@ class BaseDataset(Dataset):
 
         instance_data = self.preprocess_data(data_dict)
 
+        data_dict["mix_visual"] = np.stack(
+            (data_dict["visual_1_emb"], data_dict["visual_2_emb"]), axis=0
+        )
+
         return instance_data
 
     def __len__(self):
@@ -107,9 +107,6 @@ class BaseDataset(Dataset):
         elif "visual_embeddings" in path:
             with np.load(path) as file:
                 return file["embeddings"]
-        elif "mouths" in path:
-            with np.load(path) as file:
-                return file["data"]
         else:
             raise ValueError(f"Unsupported file format: {path}")
 
@@ -183,8 +180,6 @@ class BaseDataset(Dataset):
         """
         attrs = [
             "mix_path",
-            "mouth_1_path",
-            "mouth_2_path",
             "visual_1_path",
             "visual_2_path",
         ]
