@@ -64,7 +64,7 @@ class UConvBlock(nn.Module):
         )
 
     def forward(self, x: torch.Tensor):
-        # assert x.shape[-1] % self.stride ** self.num_layers == 0
+        assert x.shape[-1] % self.stride ** (self.num_layers - 1) == 0
 
         residual = x
 
@@ -120,6 +120,8 @@ class SuDoRMRFModel(BaseModel):
         """ """
         super().__init__()
 
+        self.uconv_stride = uconv_stride
+        self.num_uconv_layers = num_uconv_layers
         self.num_sources = num_sources
         self.enc_kernel_size = enc_kernel_size
         self.enc_stride = enc_kernel_size // 2
@@ -146,11 +148,11 @@ class SuDoRMRFModel(BaseModel):
                     stride=uconv_stride,
                 )
                 for _ in range(num_blocks)
-            ]
+            ],
+            nn.PReLU()
         )
 
         self.masker = nn.Sequential(
-            nn.PReLU(),
             nn.Conv1d(bottleneck_size, num_sources * latent_size, kernel_size=1),
             nn.ReLU(),
         )
@@ -162,6 +164,11 @@ class SuDoRMRFModel(BaseModel):
             + self.enc_kernel_size
             - (self.enc_stride + time_steps) % self.enc_kernel_size
         )
+        enc_time_steps = (
+            time_steps + self.enc_stride + zero_tail - self.enc_kernel_size
+        ) // self.enc_stride + 1
+        mod = self.uconv_stride ** (self.num_uconv_layers - 1)
+        zero_tail += (-enc_time_steps % mod) * self.enc_stride
         x = F.pad(x, (self.enc_stride, zero_tail))
         return x, zero_tail
 
@@ -169,7 +176,7 @@ class SuDoRMRFModel(BaseModel):
         """
         Args:
             mix_wav (torch.Tensor): Input tensor representing the mixed waveform.
-                Shape: (batch_size, 1, time_steps), tested on time_steps = 32000.
+                Shape: (batch_size, 1, time_steps), tested on time_steps = 16000.
 
         Returns:
             dict: A dictionary containing the separated waveforms.
@@ -179,30 +186,30 @@ class SuDoRMRFModel(BaseModel):
         batch_size = mix_wav.size(0)
 
         x, zero_tail = self.pad(mix_wav)
-        # x: (batch_size, 1, 16033)
+        # x: (batch_size, 1, 16090)
 
         encoded = self.encoder(x)
-        # encoded: (batch_size, 512, 1602)
+        # encoded: (batch_size, 512, 1608)
 
         masks = self.bottleneck(encoded)
-        # masks: (batch_size, 128, 1602)
+        # masks: (batch_size, 128, 1608)
 
         masks = self.separator(masks)
-        # masks: (batch_size, 128, 2002)
+        # masks: (batch_size, 128, 1608)
 
         masks = self.masker(masks)
-        # masks: (batch_size, 1024, 2002)
+        # masks: (batch_size, 1024, 1608)
 
         masks = masks.view(batch_size, self.num_sources, -1, encoded.size(2))
-        # masks: (batch_size, 2, 512, 2002)
+        # masks: (batch_size, 2, 512, 1608)
 
         masked = encoded.unsqueeze(1) * masks
-        # masked: (batch_size, 2, 512, 2002)
+        # masked: (batch_size, 2, 512, 1608)
 
         decoded = self.decoder(masked.view(batch_size * 2, -1, encoded.size(2)))
-        # decoded: (batch_size * 2, 1, 32048)
+        # decoded: (batch_size * 2, 1, 16090)
 
-        decoded = decoded[:, :, self.stride : -zero_tail].view(batch_size, 2, -1)
-        # decoded: (batch_size, 2, 32000)
+        decoded = decoded[:, :, self.enc_stride : -zero_tail].view(batch_size, 2, -1)
+        # decoded: (batch_size, 2, 16000)
 
         return {"output_wav": decoded}

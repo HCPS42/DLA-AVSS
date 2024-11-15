@@ -1,5 +1,5 @@
 _target_: src.model.SuDoRMRFModel
-enc_kernel_size: 21     # K_{\eps}
+enc_kernel_size: 20     # K_{\eps}
 latent_size: 512        # C_{\eps}
 bottleneck_size: 128    # C
 uconv_hidden_size: 512  # C_U
