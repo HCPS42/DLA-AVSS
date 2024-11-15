@@ -65,16 +65,10 @@ class DLADataset(BaseDataset):
             speaker_1_id = file.split("_")[0]
             speaker_2_id = file.split("_")[1].split(".")[0]
 
-            data_dict["mouth_1_path"] = str(
-                self.dir / "mouths" / (speaker_1_id + ".npz")
-            )
             data_dict["visual_1_path"] = str(
                 self.dir / "visual_embeddings" / (speaker_1_id + ".npz")
             )
 
-            data_dict["mouth_2_path"] = str(
-                self.dir / "mouths" / (speaker_2_id + ".npz")
-            )
             data_dict["visual_2_path"] = str(
                 self.dir / "visual_embeddings" / (speaker_2_id + ".npz")
             )

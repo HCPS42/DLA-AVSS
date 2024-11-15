@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import numpy as np
@@ -6,7 +5,7 @@ import torch
 from tqdm.auto import tqdm
 
 from src.datasets.base_dataset import BaseDataset
-from src.utils.io_utils import ROOT_PATH, read_json, write_json
+from src.utils.io_utils import ROOT_PATH, read_json
 
 
 class DLAOnlineDataset(BaseDataset):
