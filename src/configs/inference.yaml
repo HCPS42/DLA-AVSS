@@ -1,12 +1,12 @@
 defaults:
-  - dataloader: dataloader
+  - dataloader: conv-tasnet
   - datasets: dla-test
-  - model: mlp
+  - model: conv-tasnet
   - metrics: metrics
-  - transforms: spectrogram
+  - transforms: waveform
   - _self_
 inferencer:
-  device_tensors: ["mix_spec"] # which tensors should be on device (ex. GPU)
+  device_tensors: ["mix_wav", "mix_visual"] # which tensors should be on device (ex. GPU)
   device: auto # device name or "auto"
   save_path: "example" # any name here, can be a dataset name
   seed: 1

@@ -46,7 +46,7 @@ class DLAOnlineDataset(BaseDataset):
             data_dict[f"speaker_{num}_wav"] = self.load_object(
                 data_dict["speaker_path"]
             )
-            data_dict[f"mouth_{num}_npz"] = self.load_object(data_dict["mouth_path"])
+            data_dict[f"visual_{num}_emb"] = self.load_object(data_dict["visual_path"])
 
             return data_dict
 
@@ -58,6 +58,10 @@ class DLAOnlineDataset(BaseDataset):
 
         instance_data["mix_wav"] = (
             instance_data["speaker_1_wav"] + instance_data["speaker_2_wav"]
+        )
+
+        data_dict["mix_visual"] = np.stack(
+            (data_dict["visual_1_emb"], data_dict["visual_2_emb"]), axis=0
         )
 
         return instance_data

@@ -39,7 +39,7 @@ if __name__ == "__main__":
     print(args)
 
     audio_dir = Path(args.data_dir) / "audio" / "train"
-    mouths_dir = Path(args.data_dir) / "mouths"
+    embeddings_dir = Path(args.data_dir) / "visual_embeddings"
 
     utterances = {}
     for file in os.listdir(audio_dir / "s1"):
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             {
                 "id": ids[i],
                 "speaker_path": str(file),
-                "mouth_path": str(mouths_dir / f"{ids[i]}.npz"),
+                "visual_path": str(embeddings_dir / f"{ids[i]}.npz"),
             }
         )
 
@@ -104,8 +104,8 @@ if __name__ == "__main__":
                 "mix_path": str(mix_path),
                 "speaker_1_path": str(speaker_1_path),
                 "speaker_2_path": str(speaker_2_path),
-                "mouth_1_path": str(index[i]["mouth_path"]),
-                "mouth_2_path": str(index[j]["mouth_path"]),
+                "visual_1_path": str(index[i]["visual_path"]),
+                "visual_2_path": str(index[j]["visual_path"]),
             }
         )
 
