@@ -5,8 +5,9 @@ defaults:
   - metrics: metrics-val
   - transforms: waveform
   - _self_
+sample_rate: 8000
 inferencer:
-  device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav"] # which tensors should be on device (ex. GPU)
+  device_tensors: ["mix_wav", "speaker_1_wav", "speaker_2_wav", "mix_visual"] # which tensors should be on device (ex. GPU)
   device: auto # device name or "auto"
   save_path: "example" # any name here, can be a dataset name
   seed: 1

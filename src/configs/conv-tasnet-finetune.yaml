@@ -6,6 +6,7 @@ defaults:
   - metrics: metrics-train
   - transforms: waveform
   - _self_
+sample_rate: 8000
 optimizer:
   _target_: torch.optim.Adam
   lr: 1e-5
