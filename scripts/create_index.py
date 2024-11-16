@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--data-dir", type=str, required=True, help="Path to the folder with data"
     )
+    parser.add_argument("--device", type=str, default="cuda", help="Device to use")
     parser.add_argument(
         "--train-ratio",
         type=float,
