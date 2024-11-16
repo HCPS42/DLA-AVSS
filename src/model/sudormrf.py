@@ -43,7 +43,7 @@ class UConvBlock(nn.Module):
                 self._get_conv_block(
                     hidden_channels,
                     hidden_channels,
-                    kernel_size,
+                    kernel_size=stride * 2 + 1,
                     stride=stride,
                     depthwise=True,
                 )
@@ -156,6 +156,9 @@ class SuDoRMRFModel(BaseModel):
             nn.Conv1d(bottleneck_size, num_sources * latent_size, kernel_size=1),
             nn.ReLU(),
         )
+
+        torch.nn.init.xavier_uniform(self.encoder.weight)
+        torch.nn.init.xavier_uniform(self.decoder.weight)
 
     def pad(self, x: torch.Tensor):
         time_steps = x.size(2)
