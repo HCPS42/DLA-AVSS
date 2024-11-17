@@ -1,4 +1,6 @@
 import torch
+import torchaudio
+import torchaudio.transforms as T
 from tqdm.auto import tqdm
 
 from src.metrics.tracker import MetricTracker
@@ -53,6 +55,7 @@ class Inferencer(BaseTrainer):
 
         self.config = config
         self.cfg_trainer = self.config.inferencer
+        self.sample_rate = config.sample_rate
 
         self.device = device
 
@@ -127,10 +130,23 @@ class Inferencer(BaseTrainer):
                 metrics.update(met.name, met(**batch))
 
         if self.save_path is not None:
-            # TODO add saving, convert spectrograms to waveforms
-            # torch.save(output, self.save_path / part / f"output_{output_id}.pth")
+            target_sr = 16000
+            resample = T.Resample(orig_freq=self.sample_rate, new_freq=target_sr)
 
-            pass
+            for path, wav1, wav2 in zip(
+                batch["mix_path"], batch["speaker_1_wav"], batch["speaker_2_wav"]
+            ):
+                name = path.split("/")[-1].removesuffix(".wav")
+                torchaudio.save(
+                    self.save_path / part / f"{name}_speaker_1.wav",
+                    resample(wav1.cpu()),
+                    target_sr,
+                )
+                torchaudio.save(
+                    self.save_path / part / f"{name}_speaker_2.wav",
+                    resample(wav2.cpu()),
+                    target_sr,
+                )
 
         return batch
 

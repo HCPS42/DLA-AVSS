@@ -3,7 +3,7 @@
 _resample:
   _target_: torchaudio.transforms.Resample
   orig_freq: 16000
-  new_freq: 8000
+  new_freq: ${sample_rate}
 
 defaults:
   - batch_transforms: waveform
