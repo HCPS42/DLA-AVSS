@@ -154,3 +154,109 @@ class StackedUConvBlock(nn.Module):
 
     def forward(self, x: torch.Tensor):
         return self.blocks(x)
+
+
+class DepthwiseConv1d(nn.Module):
+    """
+    Depthwise convolutional module. (1-D Conv block in the paper)
+    """
+
+    def __init__(self, in_channels, out_channels, kernel_size, padding, dilation):
+        """
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels.
+            kernel_size (int): Kernel size for depthwise convolution.
+            padding (int): Padding size for depthwise convolution.
+            dilation (int): Dilation rate for depthwise convolution.
+        """
+        super().__init__()
+
+        self.conv = nn.Conv1d(in_channels, out_channels, kernel_size=1)
+        self.depth_conv = nn.Conv1d(
+            out_channels,
+            out_channels,
+            kernel_size=kernel_size,
+            dilation=dilation,
+            groups=out_channels,
+            padding=padding,
+        )
+        self.residual_conv = nn.Conv1d(out_channels, in_channels, kernel_size=1)
+        self.skip_conv = nn.Conv1d(
+            out_channels, in_channels, kernel_size=1
+        )  # S_c in the paper
+
+        self.prelu = nn.PReLU()
+        self.norm_1 = nn.GroupNorm(1, out_channels, eps=1e-8)
+        self.norm_2 = nn.GroupNorm(1, out_channels, eps=1e-8)
+
+    def forward(self, x):
+        x = self.norm_1(self.prelu(self.conv(x)))
+        x = self.norm_2(self.prelu(self.depth_conv(x)))
+
+        residual = self.residual_conv(x)
+        skip = self.skip_conv(x)
+
+        return residual, skip
+
+
+class TemporalConvNet(nn.Module):
+    """
+    Temporal Convolutional Network.
+    """
+
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        bottleneck_channels,
+        hidden_channels,
+        num_conv_blocks,
+        num_tcn_blocks,
+        kernel_size,
+    ):
+        """
+        Args:
+            in_channels (int): Number of input channels.
+            out_channels (int): Number of output channels.
+            bottleneck_channels (int): Number of channels in the bottleneck.
+            hidden_channels (int): Number of channels in the convolutional blocks.
+            num_conv_blocks (int): Number of convolutional blocks in each TCN block.
+            num_tcn_blocks (int): Number of TCN blocks.
+            kernel_size (int): Kernel size for convolutional layers.
+        """
+        super().__init__()
+
+        self.norm = nn.GroupNorm(1, in_channels, eps=1e-8)
+        self.bottleneck_conv = nn.Conv1d(
+            in_channels, bottleneck_channels, kernel_size=1
+        )
+
+        self.tcn_blocks = nn.ModuleList()
+        for _ in range(num_tcn_blocks):
+            for i in range(num_conv_blocks):
+                dilation = 2**i
+                block = DepthwiseConv1d(
+                    bottleneck_channels,
+                    hidden_channels,
+                    kernel_size,
+                    padding=dilation,
+                    dilation=dilation,
+                )
+                self.tcn_blocks.append(block)
+
+        self.prelu = nn.PReLU()
+        self.output_conv = nn.Conv1d(bottleneck_channels, out_channels, kernel_size=1)
+
+    def forward(self, x):
+        x = self.bottleneck_conv(self.norm(x))
+
+        skip_sum = 0
+        for block in self.tcn_blocks:
+            residual, skip = block(x)
+            x = x + residual
+            skip_sum = skip_sum + skip
+
+        x = self.output_conv(self.prelu(skip_sum))
+
+        return x

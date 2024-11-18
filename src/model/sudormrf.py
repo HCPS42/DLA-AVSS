@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from src.model.base_model import BaseModel, BaseSeparatorModel
+from src.model.base_model import BaseAudioModel, BaseModel, BaseSeparatorModel
 from src.model.utils import StackedUConvBlock
 
 
@@ -36,7 +36,7 @@ class Separator(BaseSeparatorModel):
         return self.module(audio_features)
 
 
-class SuDoRMRFModel(BaseModel):
+class SuDoRMRFModel(BaseAudioModel):
     """
     SuDoRMRF model
     https://arxiv.org/pdf/2007.06833v1

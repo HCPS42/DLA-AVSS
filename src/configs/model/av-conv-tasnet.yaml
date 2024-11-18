@@ -1,10 +1,23 @@
-_target_: src.model.AVConvTasNetModel
-num_filters: 512           # N
-filter_length: 32          # L (in time steps; 32/16000 = 2ms)
-bottleneck_channels: 128   # B
-conv_num_channels: 512     # H
-conv_kernel_size: 3        # P
-num_conv_blocks: 8         # D
-num_audio_tcn_blocks: 3    # N_a
-num_fusion_tcn_blocks: 3   # N_f
-visual_emb_dim: 512
+_target_: src.model.AudioVisualModel
+audio_model:
+  _target_: src.model.ConvTasNetModel
+  num_filters: 512           # N
+  filter_length: 16          # L (in time steps; 16/8000 = 2ms)
+  bottleneck_channels: 128   # B
+  conv_num_channels: 512     # H
+  conv_kernel_size: 3        # P
+  num_conv_blocks: 8         # X
+  num_tcn_blocks: 3          # R
+visual_model:
+  _target_: src.model.visual_model.ConvTasNetVisualModel
+  embedding_size: 512
+  num_layers: 5
+pre_audio_encoder:
+  _target_: src.model.utils.TemporalConvNet
+  in_channels: 512
+  out_channels: 512
+  bottleneck_channels: 128
+  hidden_channels: 512
+  num_conv_blocks: 8
+  num_tcn_blocks: 3
+  kernel_size: 3
