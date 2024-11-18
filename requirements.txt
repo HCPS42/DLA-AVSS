@@ -5,6 +5,9 @@ torchvision==0.17.0+cu118
 torchaudio==2.2.0+cu118
 soundfile
 torchmetrics
+scikit-learn
+numpy==1.26.0
+gdown
 tqdm
 matplotlib
 pandas
@@ -15,5 +18,3 @@ hydra-core
 black
 isort
 pre-commit
-
-opencv-python
