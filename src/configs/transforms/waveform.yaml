@@ -1,11 +1,17 @@
 # For waveform-based models
 
-_resample:
+_downsample:
   _target_: torchaudio.transforms.Resample
   orig_freq: 16000
   new_freq: ${sample_rate}
 
+_upsample:
+  _target_: torchaudio.transforms.Resample
+  orig_freq: ${sample_rate}
+  new_freq: 16000
+
 defaults:
   - batch_transforms: waveform
   - instance_transforms: waveform
+  - post_transforms: waveform
   - _self_

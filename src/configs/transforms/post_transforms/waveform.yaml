@@ -1,0 +1,10 @@
+train:
+  mix_wav: ${transforms._upsample}
+  speaker_1_wav: ${transforms._upsample}
+  speaker_2_wav: ${transforms._upsample}
+  output_wav: ${transforms._upsample}
+inference:
+  mix_wav: ${transforms._upsample}
+  speaker_1_wav: ${transforms._upsample}
+  speaker_2_wav: ${transforms._upsample}
+  output_wav: ${transforms._upsample}

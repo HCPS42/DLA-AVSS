@@ -1,7 +1,0 @@
-# For spectrogram-based models
-
-defaults:
-  - batch_transforms: spectrogram
-  - instance_transforms: spectrogram
-  - decoder: spectrogram
-  - _self_

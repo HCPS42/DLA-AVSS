@@ -2,108 +2,45 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from src.model.base_model import BaseModel
+from src.model.base_model import BaseAudioModel, BaseModel, BaseSeparatorModel
+from src.model.utils import StackedUConvBlock
 
 
-class UConvBlock(nn.Module):
+class Separator(BaseSeparatorModel):
+    """
+    Audio only separator for SuDoRMRF model
+    """
+
     def __init__(
         self,
-        embedding_channels,
-        hidden_channels,
-        num_layers,
-        kernel_size,
-        stride,
+        bottleneck_size,
+        uconv_hidden_size,
+        num_uconv_layers,
+        uconv_kernel_size,
+        uconv_stride,
+        num_blocks,
     ):
         super().__init__()
-        self.num_layers = num_layers
-        self.stride = stride
 
-        self.expand = self._get_conv_block(
-            embedding_channels,
-            hidden_channels,
-            kernel_size=1,
-            stride=1,
-            depthwise=False,
+        self.embedding_size = bottleneck_size
+        self.module = StackedUConvBlock(
+            embedding_channels=bottleneck_size,
+            hidden_channels=uconv_hidden_size,
+            num_layers=num_uconv_layers,
+            kernel_size=uconv_kernel_size,
+            stride=uconv_stride,
+            num_blocks=num_blocks,
         )
 
-        self.downsamples = nn.ModuleList(
-            [
-                self._get_conv_block(
-                    hidden_channels,
-                    hidden_channels,
-                    kernel_size,
-                    stride=1,
-                    depthwise=True,
-                )
-            ]
-        )
-
-        for _ in range(num_layers - 1):
-            self.downsamples.append(
-                self._get_conv_block(
-                    hidden_channels,
-                    hidden_channels,
-                    kernel_size=stride * 2 + 1,
-                    stride=stride,
-                    depthwise=True,
-                )
-            )
-
-        self.upsample = nn.Upsample(scale_factor=2)
-
-        self.collapse = nn.Sequential(
-            nn.GroupNorm(1, hidden_channels, eps=1e-8),
-            nn.PReLU(),
-            self._get_conv(
-                hidden_channels,
-                embedding_channels,
-                kernel_size=1,
-                stride=1,
-                depthwise=False,
-            ),
-        )
-
-    def forward(self, x: torch.Tensor):
-        assert x.shape[-1] % self.stride ** (self.num_layers - 1) == 0
-
-        residual = x
-
-        hidden = [self.downsamples[0](self.expand(x))]
-        for downsample in self.downsamples[1:]:
-            hidden.append(downsample(hidden[-1]))
-
-        out = hidden[-1]
-        for state in hidden[:-1][::-1]:
-            out = self.upsample(out) + state
-
-        out = self.collapse(out)
-
-        return out + residual
-
-    @staticmethod
-    def _get_conv(in_channels, out_channels, kernel_size, stride, depthwise):
-        return nn.Conv1d(
-            in_channels,
-            out_channels,
-            kernel_size=kernel_size,
-            stride=stride,
-            groups=out_channels if depthwise else 1,
-            padding=kernel_size // 2,
-        )
-
-    @staticmethod
-    def _get_conv_block(in_channels, out_channels, kernel_size, stride, depthwise):
-        return nn.Sequential(
-            UConvBlock._get_conv(
-                in_channels, out_channels, kernel_size, stride, depthwise
-            ),
-            nn.GroupNorm(1, out_channels, eps=1e-8),
-            nn.PReLU(),
-        )
+    def forward(self, audio_features: torch.Tensor, mix_visual: torch.Tensor):
+        return self.module(audio_features)
 
 
-class SuDoRMRFModel(BaseModel):
-    """ """
+class SuDoRMRFModel(BaseAudioModel):
+    """
+    SuDoRMRF model
+    https://arxiv.org/pdf/2007.06833v1
+    """
 
     def __init__(
         self,
@@ -120,6 +57,8 @@ class SuDoRMRFModel(BaseModel):
         """ """
         super().__init__()
 
+        self.latent_size = latent_size
+        self.bottleneck_size = bottleneck_size
         self.uconv_stride = uconv_stride
         self.num_uconv_layers = num_uconv_layers
         self.num_sources = num_sources
@@ -138,18 +77,13 @@ class SuDoRMRFModel(BaseModel):
             nn.Conv1d(latent_size, bottleneck_size, kernel_size=1),
         )
 
-        self.separator = nn.Sequential(
-            *[
-                UConvBlock(
-                    embedding_channels=bottleneck_size,
-                    hidden_channels=uconv_hidden_size,
-                    num_layers=num_uconv_layers,
-                    kernel_size=uconv_kernel_size,
-                    stride=uconv_stride,
-                )
-                for _ in range(num_blocks)
-            ],
-            nn.PReLU()
+        self.separator = Separator(
+            bottleneck_size,
+            uconv_hidden_size,
+            num_uconv_layers,
+            uconv_kernel_size,
+            uconv_stride,
+            num_blocks,
         )
 
         self.masker = nn.Sequential(
@@ -175,7 +109,7 @@ class SuDoRMRFModel(BaseModel):
         x = F.pad(x, (self.enc_stride, zero_tail))
         return x, zero_tail
 
-    def forward(self, mix_wav, **batch):
+    def forward(self, mix_wav, mix_visual, **batch):
         """
         Args:
             mix_wav (torch.Tensor): Input tensor representing the mixed waveform.
@@ -197,7 +131,7 @@ class SuDoRMRFModel(BaseModel):
         masks = self.bottleneck(encoded)
         # masks: (batch_size, 128, 1608)
 
-        masks = self.separator(masks)
+        masks = self.separator(masks, mix_visual)
         # masks: (batch_size, 128, 1608)
 
         masks = self.masker(masks)

@@ -31,6 +31,7 @@ class BaseTrainer:
         epoch_len=None,
         skip_oom=True,
         batch_transforms=None,
+        post_transforms=None,
     ):
         """
         Args:
@@ -72,6 +73,7 @@ class BaseTrainer:
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.batch_transforms = batch_transforms
+        self.post_transforms = post_transforms
         self.decoder = decoder
 
         # define dataloaders
@@ -362,7 +364,7 @@ class BaseTrainer:
             batch[tensor_for_device] = batch[tensor_for_device].to(self.device)
         return batch
 
-    def transform_batch(self, batch):
+    def transform_batch(self, batch, transforms=None):
         """
         Transforms elements in batch. Like instance transform inside the
         BaseDataset class, but for the whole batch. Improves pipeline speed,
@@ -379,7 +381,7 @@ class BaseTrainer:
         """
         # do batch transforms on device
         transform_type = "train" if self.is_train else "inference"
-        transforms = self.batch_transforms.get(transform_type)
+        transforms = transforms.get(transform_type)
         if transforms is not None:
             for transform_name in transforms.keys():
                 batch[transform_name] = transforms[transform_name](

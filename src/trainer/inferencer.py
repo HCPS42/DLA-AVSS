@@ -25,6 +25,7 @@ class Inferencer(BaseTrainer):
         save_path,
         metrics=None,
         batch_transforms=None,
+        post_transforms=None,
         skip_model_load=False,
     ):
         """
@@ -61,6 +62,7 @@ class Inferencer(BaseTrainer):
 
         self.model = model
         self.batch_transforms = batch_transforms
+        self.post_transforms = post_transforms
 
         # define dataloaders
         self.evaluation_dataloaders = {k: v for k, v in dataloaders.items()}
@@ -120,10 +122,14 @@ class Inferencer(BaseTrainer):
                 and model outputs.
         """
         batch = self.move_batch_to_device(batch)
-        batch = self.transform_batch(batch)  # transform batch on device -- faster
+        batch = self.transform_batch(
+            batch, self.batch_transforms
+        )  # transform batch on device -- faster
 
         outputs = self.model(**batch)
         batch.update(outputs)
+
+        batch = self.transform_batch(batch, self.post_transforms)
 
         if metrics is not None:
             for met in self.metrics["inference"]:
@@ -131,7 +137,6 @@ class Inferencer(BaseTrainer):
 
         if self.save_path is not None:
             target_sr = 16000
-            resample = T.Resample(orig_freq=self.sample_rate, new_freq=target_sr)
 
             for path, wav1, wav2 in zip(
                 batch["mix_path"], batch["speaker_1_wav"], batch["speaker_2_wav"]
@@ -139,12 +144,12 @@ class Inferencer(BaseTrainer):
                 name = path.split("/")[-1].removesuffix(".wav")
                 torchaudio.save(
                     self.save_path / part / f"{name}_speaker_1.wav",
-                    resample(wav1.cpu()),
+                    wav1.cpu(),
                     target_sr,
                 )
                 torchaudio.save(
                     self.save_path / part / f"{name}_speaker_2.wav",
-                    resample(wav2.cpu()),
+                    wav2.cpu(),
                     target_sr,
                 )
 
