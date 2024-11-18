@@ -60,7 +60,9 @@ def get_dataloaders(config, device):
     """
     # transforms or augmentations init
     batch_transforms = instantiate(config.transforms.batch_transforms)
+    post_transforms = instantiate(config.transforms.post_transforms)
     move_batch_transforms_to_device(batch_transforms, device)
+    move_batch_transforms_to_device(post_transforms, device)
 
     # dataset partitions init
     datasets = instantiate(config.datasets)  # instance transforms are defined inside
@@ -96,4 +98,4 @@ def get_dataloaders(config, device):
         )
         dataloaders[dataset_partition] = partition_dataloader
 
-    return dataloaders, batch_transforms
+    return dataloaders, batch_transforms, post_transforms

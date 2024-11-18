@@ -1,8 +1,8 @@
 train:
-  mix_wav: ${transforms._resample}
-  speaker_1_wav: ${transforms._resample}
-  speaker_2_wav: ${transforms._resample}
+  mix_wav: ${transforms._downsample}
+  speaker_1_wav: ${transforms._downsample}
+  speaker_2_wav: ${transforms._downsample}
 inference:
-  mix_wav: ${transforms._resample}
-  speaker_1_wav: ${transforms._resample}
-  speaker_2_wav: ${transforms._resample}
+  mix_wav: ${transforms._downsample}
+  speaker_1_wav: ${transforms._downsample}
+  speaker_2_wav: ${transforms._downsample}
