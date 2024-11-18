@@ -41,10 +41,10 @@ class Trainer(BaseTrainer):
         outputs = self.model(**batch)
         batch.update(outputs)
 
-        batch = self.transform_batch(batch, self.post_transforms)
-
         all_losses = self.criterion(**batch)
         batch.update(all_losses)
+
+        batch = self.transform_batch(batch, self.post_transforms)
 
         if self.is_train:
             batch["loss"].backward()  # sum of all losses is always called loss
