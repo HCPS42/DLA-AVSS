@@ -1,10 +1,10 @@
 _target_: src.model.SuDoRMRFModel
 enc_kernel_size: 20     # K_{\eps}
 latent_size: 512        # C_{\eps}
-bottleneck_size: 128    # C
+bottleneck_size: 512    # C
 uconv_hidden_size: 512  # C_U
 uconv_kernel_size: 5    # K_U
 num_uconv_layers: 4     # Q
 uconv_stride: 2         # always 2
-num_blocks: 16          # B
+num_blocks: 34          # B
 num_sources: 2

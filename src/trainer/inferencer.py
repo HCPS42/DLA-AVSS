@@ -137,18 +137,19 @@ class Inferencer(BaseTrainer):
 
         if self.save_path is not None:
             target_sr = 16000
+            (self.save_path / part / "s1").mkdir(parents=True, exist_ok=True)
+            (self.save_path / part / "s2").mkdir(parents=True, exist_ok=True)
 
-            for path, wav1, wav2 in zip(
-                batch["mix_path"], batch["speaker_1_wav"], batch["speaker_2_wav"]
-            ):
-                name = path.split("/")[-1].removesuffix(".wav")
+            for path, output in zip(batch["mix_path"], batch["output_wav"]):
+                name = path.split("/")[-1]
+                wav1, wav2 = output[0, :].unsqueeze(0), output[1, :].unsqueeze(0)
                 torchaudio.save(
-                    self.save_path / part / f"{name}_speaker_1.wav",
+                    self.save_path / part / "s1" / name,
                     wav1.cpu(),
                     target_sr,
                 )
                 torchaudio.save(
-                    self.save_path / part / f"{name}_speaker_2.wav",
+                    self.save_path / part / "s2" / name,
                     wav2.cpu(),
                     target_sr,
                 )

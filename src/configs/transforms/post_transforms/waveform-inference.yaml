@@ -1,0 +1,7 @@
+inference:
+  mix_wav: ${transforms._upsample}
+  output_wav:
+    _target_: torch.nn.Sequential
+    _args_:
+      - ${transforms._upsample}
+      - _target_: src.transforms.NormalizeAudio

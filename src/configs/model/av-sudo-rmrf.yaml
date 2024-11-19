@@ -3,12 +3,12 @@ audio_model:
   _target_: src.model.SuDoRMRFModel
   enc_kernel_size: 20     # K_{\eps}
   latent_size: 512        # C_{\eps}
-  bottleneck_size: 128    # C
+  bottleneck_size: 512    # C
   uconv_hidden_size: 512  # C_U
   uconv_kernel_size: 5    # K_U
   num_uconv_layers: 4     # Q
   uconv_stride: 2         # always 2
-  num_blocks: 16          # B
+  num_blocks: 24          # B
   num_sources: 2
 visual_model:
   _target_: src.model.visual_model.ConvTasNetVisualModel
@@ -16,9 +16,9 @@ visual_model:
   num_layers: 5
 pre_audio_encoder:
   _target_: src.model.utils.StackedUConvBlock
-  embedding_channels: 128
+  embedding_channels: 512
   hidden_channels: 512
   num_layers: 4
   kernel_size: 5
   stride: 2
-  num_blocks: 4
+  num_blocks: 24

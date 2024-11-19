@@ -79,12 +79,9 @@ class Trainer(BaseTrainer):
         if self.decoder is not None:
             batch.update(self.decoder(**batch))
 
-        def normalize(wav):
-            return wav / torch.max(torch.abs(wav))
-
         self.writer.add_audio("mix", batch["mix_wav"][0])
-        self.writer.add_audio("output_1", normalize(batch["output_wav"][0, 0]))
-        self.writer.add_audio("output_2", normalize(batch["output_wav"][0, 1]))
+        self.writer.add_audio("output_1", batch["output_wav"][0, 0])
+        self.writer.add_audio("output_2", batch["output_wav"][0, 1])
         self.writer.add_audio("speaker_1", batch["speaker_1_wav"][0])
         self.writer.add_audio("speaker_2", batch["speaker_2_wav"][0])
 

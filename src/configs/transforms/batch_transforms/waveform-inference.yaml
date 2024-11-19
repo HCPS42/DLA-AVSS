@@ -1,0 +1,2 @@
+inference:
+  mix_wav: ${transforms._downsample}
