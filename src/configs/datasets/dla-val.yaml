@@ -1,3 +1,9 @@
+val:
+  _target_: src.datasets.DLADataset
+  dir: "data/dla_dataset"
+  part: "val_online"
+  instance_transforms: ${transforms.instance_transforms.inference}
+
 test:
   _target_: src.datasets.DLADataset
   dir: "data/dla_dataset"

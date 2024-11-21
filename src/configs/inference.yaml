@@ -1,9 +1,9 @@
 defaults:
   - dataloader: conv-tasnet
   - datasets: dla-test
-  - model: conv-tasnet
-  - metrics: metrics
-  - transforms: waveform
+  - model: av-sudo-rmrf
+  - metrics: no-metrics
+  - transforms: waveform-inference
   - _self_
 sample_rate: 8000
 inferencer:
