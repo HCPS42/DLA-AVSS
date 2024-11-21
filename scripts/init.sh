@@ -8,15 +8,12 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 
-wandb login
+mkdir -p data
+gdown --fuzzy ${DATASET_LINK} -O data/dla_dataset.zip
+unzip data/dla_dataset.zip -d data
 
-mkdir data
-gdown --fuzzy ${DATASET_LINK}
-unzip dla_dataset.zip
-mv dla_dataset data
+gdown --fuzzy "https://drive.google.com/file/d/1TGFG0dW5M3rBErgU8i0N7M1ys9YMIvgm/view" -O lipreading/model.pth
 
-gdown --fuzzy ${EMBED_LINK}
-unzip visual_embeddings.zip
-mv visual_embeddings data/dla_dataset
+python lipreading/extract.py
 
 python scripts/create_index.py --data-dir data/dla_dataset

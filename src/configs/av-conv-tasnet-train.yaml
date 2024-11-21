@@ -1,6 +1,6 @@
 defaults:
   - datasets: dla-online-train
-  - dataloader: av-conv-tasnet-online
+  - dataloader: online
   - model: av-conv-tasnet
   - writer: wandb
   - metrics: metrics-train

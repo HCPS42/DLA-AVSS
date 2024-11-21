@@ -1,5 +1,5 @@
 defaults:
-  - dataloader: conv-tasnet
+  - dataloader: online
   - datasets: dla-test
   - model: av-sudo-rmrf
   - metrics: no-metrics
@@ -9,6 +9,6 @@ sample_rate: 8000
 inferencer:
   device_tensors: ["mix_wav", "mix_visual"] # which tensors should be on device (ex. GPU)
   device: auto # device name or "auto"
-  save_path: "example" # any name here, can be a dataset name
+  save_path: "predictions"
   seed: 1
   from_pretrained: null # path to the pretrained model

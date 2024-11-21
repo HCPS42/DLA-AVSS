@@ -1,5 +1,5 @@
 defaults:
-  - dataloader: conv-tasnet
+  - dataloader: online
   - datasets: dla-val
   - model: av-sudo-rmrf
   - metrics: metrics-val
