@@ -58,4 +58,4 @@ if __name__ == "__main__":
         embeddings_file_path = os.path.join(embeddings_path, landmark_file)
 
         if not os.path.exists(embeddings_file_path):
-            np.savez(embeddings_file_path, embeddings=embeddings.cpu().numpy())
+            np.savez(embeddings_file_path, embeddings=embeddings)
