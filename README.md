@@ -34,10 +34,11 @@ Each of these commands will train a model with the specified configuration. The 
 
 TODO: link to model weights and where to put them
 
-To separate mixtures in the test set (`data/dla_dataset/audio/test/mix`), run one of the following commands:
+To separate mixtures in the test set (`data/dla_dataset/audio/test/mix`), run the following command:
 
 ```bash
 python inference.py --config-name av-sudo-rmrf-train
 ```
 
 ### Evaluation
+
