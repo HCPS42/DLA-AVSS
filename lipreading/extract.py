@@ -1,3 +1,4 @@
+import argparse
 import os
 import urllib
 
@@ -10,8 +11,30 @@ from tqdm import tqdm
 from utils import load_model
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--mouths-path",
+        default="data/dla_dataset/mouths",
+        type=str,
+        help="Path to the input folder with mouths",
+    )
+    parser.add_argument(
+        "--embeddings-path",
+        default="data/dla_dataset/visual_embeddings",
+        type=str,
+        help="Path to the output folder with embeddings",
+    )
+    parser.add_argument(
+        "--model-path",
+        default="lipreading/model.pth",
+        type=str,
+        help="Path to the model",
+    )
+
+    args = parser.parse_args()
+
     # resnet18_dctcn_video_boundary
-    model_path = "lipreading/model.pth"
+    model_path = args.model_path
 
     densetcn_options = {
         "block_config": [3, 3, 3, 3],
@@ -30,12 +53,12 @@ if __name__ == "__main__":
 
     print(model_path)
 
-    model = load_model("lipreading/model.pth", model, allow_size_mismatch=True)
+    model = load_model(model_path, model, allow_size_mismatch=True)
 
     model.eval()
 
-    landmarks_path = "data/dla_dataset/mouths"
-    embeddings_path = "data/dla_dataset/visual_embeddings"
+    landmarks_path = args.mouths_path
+    embeddings_path = args.embeddings_path
     os.makedirs(embeddings_path, exist_ok=True)
 
     landmark_files = [f for f in os.listdir(landmarks_path) if f.endswith(".npz")]
