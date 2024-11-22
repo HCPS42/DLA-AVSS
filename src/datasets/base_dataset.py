@@ -104,8 +104,8 @@ class BaseDataset(Dataset):
         if path.endswith((".wav", ".flac", ".mp3")):
             if not os.path.exists(path):
                 raise FileNotFoundError(
-                    f"File {path} does not exist."
-                    "Make sure you are not trying to train or validate on the test set"
+                    f"File {path} does not exist. "
+                    "Make sure you are not trying to train or validate on the test set "
                     "(which does not have ground truth labels)"
                 )
 
@@ -115,7 +115,7 @@ class BaseDataset(Dataset):
         elif "visual_embeddings" in path:
             if not os.path.exists(path):
                 raise FileNotFoundError(
-                    f"File {path} does not exist."
+                    f"File {path} does not exist. "
                     "Make sure you extracted visual embeddings first"
                 )
             with np.load(path) as file:
