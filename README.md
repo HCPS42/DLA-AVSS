@@ -19,12 +19,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-* If you have the right link, run following commands to download and extract the dataset
+* Run the following commands to download and extract the training dataset
 ```bash
 mkdir -p data
 gdown --fuzzy ${DATASET_LINK} -O data/dla_dataset.zip
 unzip -q data/dla_dataset.zip -d data
 ```
+`DATASET_LINK` is supposed to be a link to the training dataset supplied with the assignment and stored on Google Drive.
 
 After that, the dataset should be stored in the `data/dla_dataset` directory.
 
@@ -34,7 +35,7 @@ After that, the dataset should be stored in the `data/dla_dataset` directory.
 gdown --fuzzy "https://drive.google.com/file/d/1TGFG0dW5M3rBErgU8i0N7M1ys9YMIvgm/view" -O lipreading/model.pth
 ```
 
-If you downloaded dataset, this should be enough
+If you have already downloaded the training dataset, the following should be enough
 ```bash
 python lipreading/extract.py
 ```
@@ -52,7 +53,7 @@ Embeddings are expected to be in the same directory as the mouth files (i.e. the
 python scripts/create_index.py --data-dir data/dla_dataset
 ```
 
-If you are just running pretrained models, omit this step.
+If you are just running a pretrained model, omit this step.
 
 ### Training
 
@@ -72,7 +73,7 @@ Each of these commands will train a model with the specified configuration. The 
 
 ### Inference
 
-Download pretrained model with
+Download the best pretrained model with
 
 ```bash
 gdown --fuzzy "https://drive.google.com/file/d/11rcJvOdtnwKz2wiGhiGCXNUarXwVvcZU/view?usp=sharing"
