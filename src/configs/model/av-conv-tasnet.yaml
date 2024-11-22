@@ -3,11 +3,11 @@ audio_model:
   _target_: src.model.ConvTasNetModel
   num_filters: 512           # N
   filter_length: 16          # L (in time steps; 16/8000 = 2ms)
-  bottleneck_channels: 128   # B
+  bottleneck_channels: 512   # B
   conv_num_channels: 512     # H
   conv_kernel_size: 3        # P
   num_conv_blocks: 8         # X
-  num_tcn_blocks: 3          # R
+  num_tcn_blocks: 6          # R
 visual_model:
   _target_: src.model.visual_model.ConvTasNetVisualModel
   embedding_size: 512
@@ -16,8 +16,10 @@ pre_audio_encoder:
   _target_: src.model.utils.TemporalConvNet
   in_channels: 512
   out_channels: 512
-  bottleneck_channels: 128
+  bottleneck_channels: 512
   hidden_channels: 512
   num_conv_blocks: 8
-  num_tcn_blocks: 3
+  num_tcn_blocks: 6
   kernel_size: 3
+
+# best parameters from our report

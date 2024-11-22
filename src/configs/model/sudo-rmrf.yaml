@@ -8,3 +8,5 @@ num_uconv_layers: 4     # Q
 uconv_stride: 2         # always 2
 num_blocks: 34          # B
 num_sources: 2
+
+# best parameters from our report

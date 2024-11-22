@@ -22,3 +22,5 @@ pre_audio_encoder:
   kernel_size: 5
   stride: 2
   num_blocks: 24
+
+# best parameters from our report
