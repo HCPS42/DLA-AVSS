@@ -6,13 +6,53 @@ This repository holds code for the 'Deep Learning for Audio' course assignment a
 
 ### Setup
 
-Set up the environment, download a dataset, and extract visual embeddings by running the following command from the root directory of the repository:
+* Clone this repository
 
+* Create and activate a virtual environment
 ```bash
-DATASET_LINK=<WRITE_YOUR_LINK_HERE> ./scripts/init.sh
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-`DATASET_LINK` is expected to be a link to a dataset that complies with the assignment requirements and is stored on Google Drive. The dataset will be stored in the `data/dla_dataset` directory. The extracted visual embeddings will be stored in the `data/dla_dataset/visual_embeddings` directory.
+* Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+* If you have the right link, run following commands to download and extract the dataset
+```bash
+mkdir -p data
+gdown --fuzzy ${DATASET_LINK} -O data/dla_dataset.zip
+unzip -q data/dla_dataset.zip -d data
+```
+
+After that, the dataset should be stored in the `data/dla_dataset` directory.
+
+* Extract visual embeddings
+
+```bash
+gdown --fuzzy "https://drive.google.com/file/d/1TGFG0dW5M3rBErgU8i0N7M1ys9YMIvgm/view" -O lipreading/model.pth
+```
+
+If you downloaded dataset, this should be enough
+```bash
+python lipreading/extract.py
+```
+
+If you have your own dataset, run
+```bash
+python lipreading/extract.py --mouths-path <PATH_TO_MOUTH_FILES> --embeddings-path <PATH_TO_EMBEDDINGS>
+```
+
+Embeddings are expected to be in the same directory as the mouth files (i.e. the dataset folder should contain `audio` and `visual_embeddings` subfolders).
+
+* If you are willing to train, you should run
+
+```bash
+python scripts/create_index.py --data-dir data/dla_dataset
+```
+
+If you are just running pretrained models, omit this step.
 
 ### Training
 
@@ -32,7 +72,11 @@ Each of these commands will train a model with the specified configuration. The 
 
 ### Inference
 
-TODO: link to model weights and where to put them
+Download pretrained model with
+
+```bash
+gdown --fuzzy "https://drive.google.com/file/d/11rcJvOdtnwKz2wiGhiGCXNUarXwVvcZU/view?usp=sharing"
+```
 
 To separate mixtures in the test set (`<DATA_DIR>/audio/mix`), run the following command:
 
@@ -40,12 +84,12 @@ To separate mixtures in the test set (`<DATA_DIR>/audio/mix`), run the following
 python inference.py datasets.test.dir=<DATA_DIR> inferencer.save_path=<PATH_TO_SAVE_DIR> inferencer.from_pretrained=<PATH_TO_MODEL_WEIGHTS>
 ```
 
-Results will be saved to `<PATH_TO_SAVE_DIR>/s1` and `<PATH_TO_SAVE_DIR>/s2` directories with filenames corresponding to the names of the files in `<DATA_DIR>/audio/mix`.
+Results will be saved to `data/saved/<PATH_TO_SAVE_DIR>/s1` and `data/saved/<PATH_TO_SAVE_DIR>/s2` directories with filenames corresponding to the names of the files in `<DATA_DIR>/audio/mix`.
 
 ### Evaluation
 
 To calculate metrics on the test set (supposing that the ground truth is stored in `<DATA_DIR>/audio/s1`, `<DATA_DIR>/audio/s2`), run the following command:
 
 ```bash
-python inferencer.py --config-name validate datasets.test.dir=<DATA_DIR> inferencer.from_pretrained=<PATH_TO_MODEL_WEIGHTS>
+python inference.py --config-name validate datasets.test.dir=<DATA_DIR> inferencer.from_pretrained=<PATH_TO_MODEL_WEIGHTS>
 ```
