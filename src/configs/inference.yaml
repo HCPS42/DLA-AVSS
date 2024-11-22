@@ -1,6 +1,6 @@
 defaults:
   - dataloader: online
-  - datasets: dla-test
+  - datasets: custom-test
   - model: av-sudo-rmrf
   - metrics: no-metrics
   - transforms: waveform-inference

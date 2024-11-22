@@ -34,11 +34,18 @@ Each of these commands will train a model with the specified configuration. The 
 
 TODO: link to model weights and where to put them
 
-To separate mixtures in the test set (`data/dla_dataset/audio/test/mix`), run the following command:
+To separate mixtures in the test set (`<DATA_DIR>/audio/mix`), run the following command:
 
 ```bash
-python inference.py --config-name av-sudo-rmrf-train
+python inference.py datasets.test.dir=<DATA_DIR> inferencer.save_path=<PATH_TO_SAVE_DIR> inferencer.from_pretrained=<PATH_TO_MODEL_WEIGHTS>
 ```
+
+Results will be saved to `<PATH_TO_SAVE_DIR>/s1` and `<PATH_TO_SAVE_DIR>/s2` directories with filenames corresponding to the names of the files in `<DATA_DIR>/audio/mix`.
 
 ### Evaluation
 
+To calculate metrics on the test set (supposing that the ground truth is stored in `<DATA_DIR>/audio/s1`, `<DATA_DIR>/audio/s2`), run the following command:
+
+```bash
+python inferencer.py --config-name validate datasets.test.dir=<DATA_DIR> inferencer.from_pretrained=<PATH_TO_MODEL_WEIGHTS>
+```

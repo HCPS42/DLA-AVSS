@@ -1,4 +1,5 @@
 import logging
+import os
 import random
 from typing import Any, List
 
@@ -101,10 +102,22 @@ class BaseDataset(Dataset):
             data_object (Any): object loaded from disk.
         """
         if path.endswith((".wav", ".flac", ".mp3")):
+            if not os.path.exists(path):
+                raise FileNotFoundError(
+                    f"File {path} does not exist."
+                    "Make sure you are not trying to train or validate on the test set"
+                    "(which does not have ground truth labels)"
+                )
+
             audio, sr = torchaudio.load(path)
             assert sr == 16000
             return audio
         elif "visual_embeddings" in path:
+            if not os.path.exists(path):
+                raise FileNotFoundError(
+                    f"File {path} does not exist."
+                    "Make sure you extracted visual embeddings first"
+                )
             with np.load(path) as file:
                 return file["embeddings"]
         else:
