@@ -1,5 +1,5 @@
 defaults:
-  - dataloader: conv-tasnet-online
+  - dataloader: online
   - datasets: dla-online-train
   - model: conv-tasnet
   - writer: wandb

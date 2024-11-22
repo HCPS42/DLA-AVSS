@@ -1,6 +1,6 @@
 defaults:
   - datasets: dla-online-train
-  - dataloader: sudo-rmrf-online
+  - dataloader: train-online
   - model: sudo-rmrf
   - writer: wandb
   - metrics: metrics-train

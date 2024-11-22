@@ -43,10 +43,10 @@ class DLADataset(BaseDataset):
                 the dataset. The dict has required metadata information,
                 such as label and object path.
         """
-        assert part in ("train", "test", "val")
+        assert part in ("train", "test", "val", "")
         index = []
 
-        audio_path = self.dir / "audio" / part
+        audio_path = self._get_audio_path(part)
         index_path = self._get_index_path(part)
 
         for file in tqdm(
@@ -79,5 +79,19 @@ class DLADataset(BaseDataset):
 
         return index
 
+    def _get_audio_path(self, part):
+        return self.dir / "audio" / part
+
     def _get_index_path(self, part):
         return self.dir / f"{part}_index.json"
+
+
+class CustomDirDataset(DLADataset):
+    def __init__(self, dir, *args, **kwargs):
+        super().__init__(dir, part="", *args, **kwargs)
+
+    def _get_audio_path(self, part):
+        return self.dir / "audio"
+
+    def _get_index_path(self, part):
+        return self.dir / "index.json"
